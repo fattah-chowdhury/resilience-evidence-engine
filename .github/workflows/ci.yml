@@ -1,0 +1,32 @@
+name: REE verification
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install '.[dev]'
+      - run: python -m ruff check src tests
+      - run: python -m pytest -q
+      - run: ree doctor
+      - run: ree demo
+      - run: ree reproduce flagship
+      - run: ree init ci-study
+      - run: ree run --config ci-study/project.yml
+  optional-formats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install '.[dev,excel,columnar,gis]'
+      - run: python -m pytest -q tests/test_gis_and_links.py tests/test_ingestion.py
