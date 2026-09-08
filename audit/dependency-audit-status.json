@@ -1,0 +1,10 @@
+{
+  "date": "2026-09-07",
+  "status": "BLOCKED",
+  "scope": "21 pinned runtime dependencies including optional GIS/Excel/Parquet extras",
+  "command": "python -m pip_audit -r requirements-all.lock --no-deps --disable-pip --strict --progress-spinner off --timeout 10 --format json --output audit/dependency-audit.json",
+  "result": "Network approval was cancelled before a decision was returned; no advisory results were obtained.",
+  "known_vulnerabilities": "unknown",
+  "dependency_inventory": "dependency-scope.json",
+  "note": "No zero-vulnerability claim. Rerun on an environment with permitted advisory-service access."
+}

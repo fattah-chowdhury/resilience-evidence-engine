@@ -1,0 +1,38 @@
+schema_version: 1
+project:
+  name: usgs-live
+study_area:
+  country: global
+  admin_units: []
+  bbox: null
+time:
+  start: null
+  end: null
+mode: live
+inputs: []
+output_dir: outputs
+export_policy: public
+topics:
+- earthquake
+languages:
+- en
+collection:
+  public_sources: true
+  max_records: 25
+  sources:
+  - usgs_catalog
+  min_magnitude: 5.0
+  timeout_seconds: 15
+  max_bytes: 10000000
+processing:
+  human_review: true
+  llm_enabled: false
+  gazetteer: null
+  taxonomy: null
+  evidence_rules: null
+  link_days: 3
+  link_km: 30.0
+exports:
+- csv
+- json
+- geojson

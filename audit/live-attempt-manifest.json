@@ -1,0 +1,83 @@
+{
+  "code_commit": null,
+  "code_dirty": null,
+  "completed_at": "2026-09-07T14:14:44.982799+00:00",
+  "config": {
+    "collection": {
+      "max_bytes": 10000000,
+      "max_records": 5,
+      "min_magnitude": 7.0,
+      "public_sources": true,
+      "sources": [
+        "usgs_catalog"
+      ],
+      "timeout_seconds": 15
+    },
+    "export_policy": "public",
+    "exports": [
+      "csv",
+      "json",
+      "geojson"
+    ],
+    "inputs": [],
+    "languages": [
+      "en"
+    ],
+    "mode": "live",
+    "output_dir": "outputs",
+    "processing": {
+      "evidence_rules": null,
+      "gazetteer": null,
+      "human_review": true,
+      "link_days": 3,
+      "link_km": 30.0,
+      "llm_enabled": false,
+      "taxonomy": null
+    },
+    "project": {
+      "name": "usgs-historical-check"
+    },
+    "schema_version": 1,
+    "study_area": {
+      "admin_units": [],
+      "bbox": null,
+      "country": "global"
+    },
+    "time": {
+      "end": "2024-01-02",
+      "start": "2024-01-01"
+    },
+    "topics": [
+      "earthquake"
+    ]
+  },
+  "config_hash": "6d291930a4b3c78702a4d47bcd050fa58b5fe245d46d67dd3b1d36d55e7b9dd7",
+  "dependencies": {
+    "PyYAML": "6.0.3",
+    "geopandas": "1.1.4",
+    "openpyxl": "3.1.5",
+    "pyarrow": "23.0.1",
+    "pydantic": "2.13.4",
+    "pyproj": "3.8.0",
+    "shapely": "2.1.2"
+  },
+  "enabled_adapters": [],
+  "error": {
+    "message": "[Errno -3] Temporary failure in name resolution",
+    "type": "gaierror"
+  },
+  "export_files": {},
+  "failed_records": [],
+  "input_files": [],
+  "live_requested": true,
+  "mode": "live",
+  "package_code_hash": "3d92825f0f85afb4a6db7d33441be15d8eab321fd7014eb8e42ba90d9e41f367",
+  "parent_run": null,
+  "python": "3.12.13",
+  "record_counts": {},
+  "ree_version": "0.1.0",
+  "run_id": "20260907T141444_b3d3f7e9bf",
+  "started_at": "2026-09-07T14:14:44.971767+00:00",
+  "status": "failed",
+  "warnings": []
+}

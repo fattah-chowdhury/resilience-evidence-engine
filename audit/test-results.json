@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-07",
+  "source_tests": {
+    "command": "PYTHONPATH=src .venv/bin/python -m pytest -q",
+    "result": "PASS",
+    "passed": 93,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 2.57,
+    "warnings": [
+      "GeoPackage reader selects the first layer (locations) when no layer selector is supplied."
+    ]
+  },
+  "lint": {
+    "command": ".venv/bin/python -m ruff check src tests --output-format concise",
+    "result": "PASS",
+    "ruff_version": "0.16.6"
+  }
+}

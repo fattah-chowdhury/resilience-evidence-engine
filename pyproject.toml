@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77,<85", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "resilience-evidence-engine"
+version = "0.1.0"
+description = "Local-first provenance-aware evidence engineering with an offline reference demo"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["pydantic>=2.10,<3", "PyYAML>=6,<7"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<10", "ruff>=0.9,<1"]
+excel = ["openpyxl>=3.1,<4"]
+columnar = ["pyarrow>=18,<24"]
+gis = ["geopandas>=1,<2", "shapely>=2,<3", "pyproj>=3,<4", "pyogrio>=0.10,<1"]
+
+[project.scripts]
+ree = "ree.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ree = ["schema.sql", "assets/*.json", "assets/*.yml", "assets/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100

@@ -1,0 +1,7 @@
+include *.md *.lock *.cff LICENSE Makefile Dockerfile docker-compose.yml .env.example
+recursive-include src/ree/assets *.json *.yml *.md
+recursive-include configs *.yml
+recursive-include docs *.md
+recursive-include tests *.py
+recursive-include audit *.json *.md *.txt
+include .github/workflows/ci.yml

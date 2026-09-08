@@ -1,0 +1,8 @@
+# Tested version pins: Linux x86_64, Python 3.12.13, 2026-09-07.
+# Not a cross-platform or hash-locked resolution. REE is installed separately.
+annotated-types==0.8.0
+pydantic==2.13.4
+pydantic-core==2.46.4
+pyyaml==6.0.3
+typing-extensions==4.16.0
+typing-inspection==0.4.4

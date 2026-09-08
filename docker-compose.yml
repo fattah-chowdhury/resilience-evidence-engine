@@ -1,0 +1,8 @@
+services:
+  ree:
+    build: .
+    command: ["demo", "--output", "/home/ree/outputs"]
+    volumes:
+      - ree-output:/home/ree/outputs
+volumes:
+  ree-output:

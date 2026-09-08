@@ -1,0 +1,80 @@
+{
+  "status": "PASS",
+  "date": "2026-09-07",
+  "python": "3.12.13",
+  "interpreter": "/workspace/scratch/fa1247f10dc8/ree-checks/clean-install/bin/python",
+  "installed_module": "/workspace/scratch/fa1247f10dc8/ree-checks/clean-install/lib/python3.12/site-packages/ree/__init__.py",
+  "system_site_packages": false,
+  "pythonpath_environment": null,
+  "dependencies": {
+    "pydantic": "2.13.4",
+    "pydantic-core": "2.46.4",
+    "PyYAML": "6.0.3"
+  },
+  "commands": [
+    {
+      "command": "python -m ree --version",
+      "exit_code": 0,
+      "stdout": "0.1.0\n",
+      "stderr": ""
+    },
+    {
+      "command": "python -m ree doctor",
+      "exit_code": 0,
+      "stdout": "{\n  \"ree\": \"0.1.0\",\n  \"python\": \"3.12.13\",\n  \"sqlite\": \"3.53.1\",\n  \"sqlite_integrity\": \"ok\",\n  \"dependencies\": {\n    \"pydantic\": \"2.13.4\",\n    \"PyYAML\": \"6.0.3\"\n  },\n  \"optional_modules\": {\n    \"openpyxl\": false,\n    \"pyarrow\": false,\n    \"geopandas\": false\n  },\n  \"output_parent_writable\": true,\n  \"network_tested\": false,\n  \"paid_credentials_required\": false,\n  \"scope\": \"local checks only; live access and desktop GIS are separate gates\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": "python -m ree demo",
+      "exit_code": 0,
+      "stdout": "SUCCEEDED: /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/outputs/flagship/20260907T143240_a6f188a0be\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/outputs/flagship/20260907T143240_a6f188a0be/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": "python -m ree validate --run /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/outputs/flagship/20260907T143240_a6f188a0be",
+      "exit_code": 0,
+      "stdout": "PASS: run integrity\nReport: /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/outputs/flagship/20260907T143240_a6f188a0be/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": "python -m ree reproduce flagship --output /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/frozen",
+      "exit_code": 0,
+      "stdout": "Reproduction: PASS\nSUCCEEDED: /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/frozen/flagship/20260907T143240_e8178b045c\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/frozen/flagship/20260907T143240_e8178b045c/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": "python -m ree init my-project",
+      "exit_code": 0,
+      "stdout": "Created my-project/project.yml\nNext: ree run --config my-project/project.yml\n",
+      "stderr": ""
+    },
+    {
+      "command": "python -m ree validate --config my-project/project.yml",
+      "exit_code": 0,
+      "stdout": "PASS: configuration; sha256=be75e36dd762fc8dbada2126c64f50f554b2ecfcfb42e1473bb2aa0dda6b7fa3\n",
+      "stderr": ""
+    },
+    {
+      "command": "python -m ree run --config my-project/project.yml",
+      "exit_code": 0,
+      "stdout": "SUCCEEDED: /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/my-project/outputs/my-project/20260907T143241_99200679e5\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/my-project/outputs/my-project/20260907T143241_99200679e5/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": "python -m ree export --run /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/outputs/flagship/20260907T143240_a6f188a0be --format json --output /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/json-only",
+      "exit_code": 0,
+      "stdout": "SUCCEEDED: /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/json-only/flagship/20260907T143242_6c41853b6d\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: /workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/json-only/flagship/20260907T143242_6c41853b6d/summary/run_report.html\n",
+      "stderr": ""
+    }
+  ],
+  "reference_run": "/workspace/scratch/fa1247f10dc8/ree-checks/installed-smoke/frozen/flagship/20260907T143240_e8178b045c",
+  "reproduction": {
+    "actual_version": "0.1.0",
+    "counts_match": true,
+    "dataset_matches": true,
+    "expected_version": "0.1.0",
+    "fixture_matches": true,
+    "passed": true
+  },
+  "json_only_report_links": "PASS"
+}

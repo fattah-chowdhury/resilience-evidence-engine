@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "markdown_links": "PASS",
+  "wheel_resources_match_source": [
+    "ree/sources.py",
+    "ree/storage.py",
+    "ree/resolution.py",
+    "ree/ingestion.py",
+    "ree/schema.sql",
+    "ree/models.py",
+    "ree/config.py",
+    "ree/exporters.py",
+    "ree/pipeline.py",
+    "ree/review.py",
+    "ree/__main__.py",
+    "ree/evidence.py",
+    "ree/__init__.py",
+    "ree/cli.py",
+    "ree/linkage.py",
+    "ree/assets/evidence_rules.json",
+    "ree/assets/source_registry.json",
+    "ree/assets/event_taxonomy.json",
+    "ree/assets/gazetteer.json",
+    "ree/assets/expected.json",
+    "ree/assets/frozen.json"
+  ],
+  "wheel_sha256": "cb885837ca425914031f34c6b777172f91829a334de01e57bda698efba569497"
+}

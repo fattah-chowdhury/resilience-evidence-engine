@@ -1,0 +1,39 @@
+schema_version: 1
+project:
+  name: bangladesh-excerpt
+study_area:
+  country: Bangladesh
+  admin_units: []
+  bbox: null
+time:
+  start: null
+  end: null
+mode: demo
+inputs: []
+output_dir: outputs
+export_policy: public
+topics:
+- flood
+languages:
+- en
+- bn
+collection:
+  public_sources: false
+  max_records: 100
+  sources:
+  - usgs_catalog
+  min_magnitude: 5.0
+  timeout_seconds: 15
+  max_bytes: 10000000
+processing:
+  human_review: true
+  llm_enabled: false
+  gazetteer: null
+  taxonomy: null
+  evidence_rules: null
+  link_days: 3
+  link_km: 30.0
+exports:
+- csv
+- json
+- geojson

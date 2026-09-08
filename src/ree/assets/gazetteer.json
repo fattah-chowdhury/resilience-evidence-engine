@@ -1,0 +1,6 @@
+[
+  {"id":"country:Japan","name":"Japan","aliases":["জাপান"],"country":"Japan","level":"country","parent_id":null,"representational":false,"rights":"Names and hierarchy facts only; no boundary dataset","source_url":"https://www.usgs.gov/news/featured-story/new-years-day-m75-earthquake-shakes-japans-west-coast"},
+  {"id":"country:Bangladesh","name":"Bangladesh","aliases":["বাংলাদেশ"],"country":"Bangladesh","level":"country","parent_id":null,"representational":false,"rights":"Names and hierarchy facts only; no boundary dataset","source_url":"https://science.nasa.gov/photojournal/swot-captures-flooding-in-bangladesh/"},
+  {"id":"place:Sylhet-city","name":"Sylhet city","aliases":["Sylhet","সিলেট"],"country":"Bangladesh","level":"city","parent_id":"country:Bangladesh","representational":false,"rights":"Factual name only; no geometry supplied","source_url":"https://science.nasa.gov/photojournal/swot-captures-flooding-in-bangladesh/"},
+  {"id":"place:Sylhet-region","name":"Sylhet surrounding area (unresolved extent)","aliases":["Sylhet","সিলেট"],"country":"Bangladesh","level":"unresolved_area","parent_id":"country:Bangladesh","representational":false,"rights":"Alternative interpretation of the source's surrounding areas; not an asserted administrative boundary","source_url":"https://science.nasa.gov/photojournal/swot-captures-flooding-in-bangladesh/"}
+]

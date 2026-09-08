@@ -1,0 +1,26 @@
+{
+  "ree_version": "0.1.0",
+  "fixture_hash": "fe448abfb48081e8335d778715881da9857c8669b53addc7decf4b3df883a93c",
+  "dataset_hash": "30ab2d817c01197c3bc2b83c9b8e3bdd0531c3422deb70cc9977704b615032de",
+  "record_counts": {
+    "acquired": 4,
+    "claims": 5,
+    "document_duplicate_pairs": 0,
+    "documents": 4,
+    "event_link_proposals": 0,
+    "events": 4,
+    "filtered_records_or_claims": 0,
+    "pending_reviews": 12,
+    "privacy_suppressed_records": 0,
+    "repeated_identical_input_records": 0
+  },
+  "reviewed_semantics": [
+    "4 source documents; 5 claims; 4 candidate events",
+    "Sylhet flood date remains unknown and has two location candidates",
+    "Noto earthquake claims share an event but only one USGS origin group",
+    "Noto geometry is a representational model reference",
+    "Hualien time is a UTC calendar date from reported catalog header",
+    "All five reference claims remain queued for human review"
+  ],
+  "scope": "Regression reference reviewed at initial creation; not an independently labelled accuracy benchmark. Never regenerate in CI."
+}

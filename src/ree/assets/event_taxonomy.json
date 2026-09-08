@@ -1,0 +1,18 @@
+{
+  "flood":["flood","floods","flooding","flooded","বন্যা"],
+  "cyclone":["cyclone","hurricane","typhoon","ঘূর্ণিঝড়","ঘূর্ণিঝড়"],
+  "storm":["storm","ঝড়","ঝড়"],
+  "storm_surge":["storm surge","জলোচ্ছ্বাস"],
+  "waterlogging":["waterlogging","waterlogged","জলাবদ্ধতা"],
+  "erosion":["erosion","ভাঙন"],
+  "landslide":["landslide","ভূমিধস"],
+  "drought":["drought","খরা"],
+  "wildfire":["wildfire","forest fire","দাবানল"],
+  "heat":["heatwave","heat wave","তাপপ্রবাহ"],
+  "earthquake":["earthquake","earthquakes","quake","ভূমিকম্প"],
+  "tsunami":["tsunami","সুনামি"],
+  "infrastructure_disruption":["road closure","power outage"],
+  "health_service_disruption":["hospital closure"],
+  "displacement":["displaced","displacement"],
+  "adaptation_activity":["adaptation project"]
+}

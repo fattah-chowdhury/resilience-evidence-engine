@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "scope": "Basic private-key and common token-signature scan of release source/docs/audit; no automatic secret detector guarantee",
+  "matching_files": [],
+  "privacy_test": "Synthetic sensitive-text/address canaries checked across all public run files by passing tests",
+  "limitations": [
+    "No automatic PII classifier",
+    "Configuration paths can remain in metadata",
+    "Online dependency advisory audit blocked"
+  ]
+}
