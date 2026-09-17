@@ -145,15 +145,21 @@ class OperationsTests(unittest.TestCase):
 
     def test_resume_downstream_failure_needs_no_original_input(self):
         self.file()
-        with patch('ree.pipeline.export_all',side_effect=OSError('synthetic disk failure')):
-            with self.assertRaises(RunFailure) as failed: run(self.local(),base=self.root)
+        with (
+            patch('ree.pipeline.export_all', side_effect=OSError('synthetic disk failure')),
+            self.assertRaises(RunFailure) as failed,
+        ):
+            run(self.local(), base=self.root)
         (self.root/'a.json').unlink()
         child,manifest=resume_run(failed.exception.output,output=self.root/'resumed')
         self.assertEqual(manifest['status'],'succeeded'); self.assertFalse(validate_run(child)[1])
 
     def test_live_timeout_and_explicit_resume(self):
-        with patch.object(USGSAdapter,'collect',side_effect=socket.timeout('synthetic timeout')):
-            with self.assertRaises(RunFailure) as failed: run(live_config(),output=self.root,live=True)
+        with (
+            patch.object(USGSAdapter, 'collect', side_effect=TimeoutError('synthetic timeout')),
+            self.assertRaises(RunFailure) as failed,
+        ):
+            run(live_config(), output=self.root, live=True)
         parent=failed.exception.output
         with self.assertRaisesRegex(ValueError,'--live'): resume_run(parent)
         with patch.object(USGSAdapter,'collect',return_value=([],[])):
@@ -176,8 +182,11 @@ class OperationsTests(unittest.TestCase):
         canary='SYNTHETIC_PRIVATE_CANARY_8491'; self.file(text=canary)
         config=ProjectConfig(project={'name':'privacy'},mode='hybrid',inputs=[{'path':'a.json'}],
                              topics=['earthquake'],export_policy='public',collection={'public_sources':True})
-        with patch.object(USGSAdapter,'collect',side_effect=OSError('synthetic unavailable')):
-            with self.assertRaises(RunFailure) as failed: run(config,base=self.root,live=True)
+        with (
+            patch.object(USGSAdapter, 'collect', side_effect=OSError('synthetic unavailable')),
+            self.assertRaises(RunFailure) as failed,
+        ):
+            run(config, base=self.root, live=True)
         for path in failed.exception.output.rglob('*'):
             if path.is_file(): self.assertNotIn(canary.encode(),path.read_bytes())
 

@@ -13,7 +13,7 @@ from ree.storage import PRIMARY_KEYS, TABLES, connect, validate_database
 def validate_files(root, manifest):
     problems = []
     if not isinstance(manifest, dict):
-        raise ValueError('Run manifest must be a JSON object')
+        raise ValueError('Run manifest must be a JSON object')  # noqa: TRY004 - malformed persisted data
     exports = manifest.get('export_files')
     if not isinstance(exports, dict) or not exports:
         return ['Missing output hash inventory']

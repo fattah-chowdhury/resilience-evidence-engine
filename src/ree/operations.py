@@ -16,7 +16,7 @@ def resume_run(root, output=None, live=False, cache=None):
     root = root.resolve()
     manifest = json.loads((root / 'provenance/run_manifest.json').read_text(encoding='utf-8'))
     if not isinstance(manifest, dict):
-        raise ValueError('Run manifest must be a JSON object')
+        raise ValueError('Run manifest must be a JSON object')  # noqa: TRY004 - malformed persisted data
     if manifest.get('status') in {'succeeded', 'partial'}:
         manifest, replay = load_replay(root)
         return run(ProjectConfig.model_validate(replay['config']), output=output, replay=replay,

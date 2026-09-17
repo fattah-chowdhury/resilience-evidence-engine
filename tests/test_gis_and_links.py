@@ -35,6 +35,7 @@ def test_parquet_and_geopackage_round_trip(tmp_path):
 
 def test_empty_gis_exports_are_readable(tmp_path):
     gpd = pytest.importorskip('geopandas')
+    pytest.importorskip('pyarrow')
     config = ProjectConfig(project={'name':'empty'}, study_area={'country':'Unmatched test country'}, exports=['gpkg','geojson','parquet'])
     root, _ = run(config, output=tmp_path)
     assert (root/'gis/evidence.gpkg').exists()

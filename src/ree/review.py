@@ -7,8 +7,8 @@ from hashlib import sha256
 
 from ree import __version__
 from ree.config import ProjectConfig
-from ree.pipeline import run, timestamp
 from ree.integrity import validate_run
+from ree.pipeline import run, timestamp
 
 
 def load_replay(root):

@@ -5,9 +5,9 @@ import importlib.util
 import json
 import os
 import tempfile
-from pathlib import Path
 from hashlib import sha256
 from html import escape
+from pathlib import Path
 
 from ree.models import canonical
 from ree.storage import TABLES, connect
