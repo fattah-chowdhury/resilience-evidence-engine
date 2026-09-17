@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-09T13:53:20.261812+00:00",
+  "version": "0.2.0",
+  "scope": "Current tracked and unignored source/doc/audit files; excludes Git history and outputs. Static patterns are not exhaustive.",
+  "files_scanned": 94,
+  "secret_findings": [],
+  "machine_path_findings": [],
+  "syntax_errors": [],
+  "reviewed_benign_matches": [
+    "Synthetic user:password URL in rejection test",
+    "Intentional /home/ree container user paths"
+  ],
+  "status": "PASS"
+}

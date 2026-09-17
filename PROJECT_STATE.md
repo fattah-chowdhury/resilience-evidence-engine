@@ -1,50 +1,56 @@
-# Project state
+# REE project state — 2026-09-09
 
-Version: 0.1.0 (experimental) · checkpoint date: 2026-09-07
+Version **0.2.0**, experimental operations candidate. Fully verified public release: **HOLD**.
 
 ## Continuity
 
-The durable REE_Stage0_Stage1_Source.zip checkpoint was recovered and its Stage 0–1 foundation verified.
-The archive was preserved. This continuation expanded the existing modules and corrected bootstrap
-statements only where tests/code proved them obsolete. Frozen inputs and expected semantic output hashes
-were retained across verification; no duplicate reference dataset or new architectural restart was introduced.
+Original v0.1.0 commit f25280b and its architecture remain the baseline. Workspace maintenance
+removed an intermediate checkout; the saved original archive/Git bundle restored its history.
+The operations changes were recovered, then checked on the current source and installed wheel.
+No frozen inputs or expected hashes/counts were regenerated. The original release remains intact.
 
 ## Completed in this continuation
 
-- Real-source curated offline demo, normalized ingestion and typed records.
-- Explicit location/time uncertainty, rule extraction and transparent evidence indicators.
-- Duplicate/corroboration separation, conservative linkage and immutable claim/event-link review.
-- Curated source discovery and bounded USGS adapter, including failure manifests.
-- Relational/GIS exports, offline report and field provenance with validation.
-- Frozen version/input/count/dataset regression from both source and installed wheel.
-- 93 passing tests with all runtime extras installed; clean Ruff result.
-- Clean virtual environment with six pinned core dependencies installed; current wheel installed and
-  run outside the source tree with system-site-packages disabled and no PYTHONPATH override.
-- Final user/maintainer manuals, source-rights policy, CI, governance, packaging and release audit.
+- [x] Audit actual code and separate historical from current evidence.
+- [x] Preserve source/document/claim/location/event separation and existing architecture.
+- [x] Add contextual claim/event-link review, stricter inventory/database/provenance validation.
+- [x] Add acquisition checkpoints, immutable resume, opt-in public USGS cache and run comparison.
+- [x] Validate an explicit external adapter example without core edits.
+- [x] Run flood, cyclone, mapped CSV and alternate-country configurations without duplicating real data.
+- [x] Exercise malformed input, source failure, uncertainty, duplicates, privacy and recovery cases.
+- [x] Preserve changed provider geometry and reduce redundant duplicate-pair provenance allocation.
+- [x] Pass 28 current operational unittest checks on the installed wheel outside the source tree.
+- [x] Execute CLI help, doctor, schema, demo, init/run, validation, discovery, review, export,
+  report, resume, comparison, cache inspection and example commands.
+- [x] Pass frozen comparison with only the declared provenance software-version tolerance.
+- [x] Attempt a real bounded USGS query and retain its DNS failure manifest.
+- [x] Complete the operational audit, reproducibility report, data sources, quality scorecard,
+  release readiness, user manual and maintainer manual.
 
-## Failed or blocked operations
+The final distribution groups source, build artifacts and one unchanged verified example.
+Current verification evidence is under audit/operations/. Files directly under audit/ preserve
+historical v0.1.0 evidence and must not be counted as current full-suite passes.
 
-- Real historical USGS request: temporary DNS resolution failure, exit 2. Original failure manifest
-  retained in audit/live-attempt-manifest.json. No successful live response or fallback data is claimed.
-- Dependency advisory scan: network approval cancellation before a decision; no advisory results.
-  audit/dependency-audit-status.json records the blocker and exact command.
-- QGIS, R/sf, Docker and remote GitHub Actions execution: unavailable in this environment, not run.
+## Current verification scope
 
-## Technical debt and limits
+The installed wheel uses a venv with preinstalled system dependencies. It is not a pristine
+installation proof. The original 93-test pytest suite and Ruff/GIS results are historical.
+The current full pytest suite, Ruff, optional Parquet/GeoPackage, QGIS/R, Docker and hosted CI
+remain unverified. Online dependency bootstrap/advisory work was cancelled before network approval
+returned. The new actual USGS request failed DNS resolution; no successful live records are claimed.
 
-Small curated factual sample; basic English/Bangla keywords rather than evaluated multilingual NLP;
-tiny name-only gazetteer; no general web crawler, exhaustive API pagination, remote geocoder, LLM,
-automatic plugin loading, in-place database migrations, PII classifier or spatial anonymization.
-Configuration paths can remain in metadata. Dependency pins are Linux/Python 3.12 snapshots, not
-hash-locked universal environments. Manifests are unsigned. Maximum 1,000 records with quadratic matching.
+Reference counts remain 4 documents, 5 claims, 4 candidate events and 12 pending reviews.
+The current raw dataset hash differs because truthful 0.2.0 provenance is stored. A comparison
+copy normalizes only transformation.ree_version to 0.1.0; all other reference values must match.
 
-## Last safe checkpoint and next action
+## Next safe checkpoint
 
-The offline v0.1.0 implementation is saved with build/test evidence, a wheel and a verified example.
-Read RELEASE_READINESS.md before continuing. Close the three external acceptance gaps: actual live API,
-actual QGIS/R interoperability and online dependency advisories. A reviewed correction should preserve
-old runs and use a new child/retry run. Do not rerun completed stages or refresh expected.json by default.
+Continue from this candidate, not from bootstrap. In an environment supporting the blocked tools,
+complete the remaining gates in RELEASE_READINESS.md: pristine installation, full pytest/Ruff and
+optional GIS readers, actual live USGS, dependency advisories, QGIS/R, Docker and hosted CI.
+Review real owner/citation/destination metadata before any public release or DOI registration.
+No external publication was performed by this operations run.
 
-MASTER PROMPT 1 has an auditable working implementation and final deliverables, but its full acceptance
-workflow is **not completely passed**. MASTER PROMPT 2 may continue from this checkpoint with these
-blockers explicitly carried forward; it must not assume a fully verified production/public release.
+MASTER PROMPT 2's available operational work is complete, but neither master's full acceptance
+criteria can be certified complete until those recorded gates pass. No scientific accuracy,
+operational hazard safety, production scale or comprehensive live hazard coverage is claimed.

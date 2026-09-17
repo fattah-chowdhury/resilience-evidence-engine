@@ -1,0 +1,4 @@
+id,report,place,date,nation,hazard
+synthetic-flood-bd,Synthetic test only: flooding was reported.,Khulna District,2024-06,Bangladesh,flood
+synthetic-cyclone-bd,Synthetic test only: a cyclone was reported.,Khulna District,2024-05-26,Bangladesh,cyclone
+synthetic-flood-ke,Synthetic test only: flooding was reported.,Mombasa,2024-04,Kenya,flood

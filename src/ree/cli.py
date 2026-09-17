@@ -3,6 +3,7 @@
 import argparse
 import importlib.util
 import json
+import logging
 import os
 import sqlite3
 import sys
@@ -36,6 +37,7 @@ def print_run(root, manifest):
 def main(argv=None):
     parser = argparse.ArgumentParser(description="REE: traceable evidence, uncertainty, review and GIS")
     parser.add_argument("--version", action="version", version=__version__)
+    parser.add_argument("--log-level", choices=["INFO", "WARNING", "ERROR", "DEBUG"], default="WARNING")
     commands = parser.add_subparsers(dest="command", required=True)
     init = commands.add_parser("init", help="Create a ready-to-run offline project YAML")
     init.add_argument("project", type=Path)
@@ -46,9 +48,19 @@ def main(argv=None):
         if name == "reproduce":
             command.add_argument("reference", choices=["flagship"])
     execute = commands.add_parser("run", help="Run a configured offline, local, live or hybrid study")
-    execute.add_argument("--config", type=Path, required=True)
+    selection = execute.add_mutually_exclusive_group(required=True)
+    selection.add_argument("--config", type=Path)
+    selection.add_argument("--resume", type=Path, help="Saved run path; writes a new child")
     execute.add_argument("--live", action="store_true")
     execute.add_argument("--output", type=Path)
+    execute.add_argument("--cache-dir", type=Path)
+    execute.add_argument("--cache-mode", choices=["reuse", "refresh", "only"], default="reuse")
+    compare = commands.add_parser("compare", help="Compare validated run counts, grades, places and sources")
+    compare.add_argument("left", type=Path)
+    compare.add_argument("right", type=Path)
+    cache_cmd = commands.add_parser("cache", help="Inspect or clear public REE catalog cache entries")
+    cache_cmd.add_argument("action", choices=["status", "clear"])
+    cache_cmd.add_argument("--cache-dir", type=Path, required=True)
     ingest = commands.add_parser("ingest", help="Process one local file privately")
     ingest.add_argument("file", type=Path)
     ingest.add_argument("--output", type=Path)
@@ -75,22 +87,40 @@ def main(argv=None):
     doctor.add_argument("--config", type=Path)
     commands.add_parser("schema", help="Print the normalized relational schema")
     args = parser.parse_args(argv)
+    logging.basicConfig(level=getattr(logging, args.log_level), format="%(levelname)s: %(message)s")
     try:
         if args.command == "init":
             target = initialize(args.project)
             print(f"Created {target}\nNext: ree run --config {target}")
         elif args.command == "run":
+            from ree.cache import CatalogCache
+            from ree.operations import resume_run
+            if args.cache_mode != "reuse" and not args.cache_dir:
+                raise ValueError("--cache-mode requires --cache-dir")
+            cache = CatalogCache(args.cache_dir, mode=args.cache_mode) if args.cache_dir else None
+            if args.resume:
+                return print_run(*resume_run(args.resume, output=args.output, live=args.live, cache=cache))
             config = load_config(args.config)
-            return print_run(*run(config, base=args.config.resolve().parent, output=args.output, live=args.live))
+            return print_run(*run(config, base=args.config.resolve().parent, output=args.output,
+                                  live=args.live, cache=cache))
+        elif args.command == "cache":
+            from ree.cache import CatalogCache
+            cache = CatalogCache(args.cache_dir)
+            print(json.dumps(cache.status() if args.action == "status" else cache.clear(), indent=2))
+        elif args.command == "compare":
+            from ree.operations import compare_runs
+            print(json.dumps(compare_runs(args.left, args.right), indent=2))
         elif args.command in {"demo", "reproduce"}:
             root, manifest = run(reference_config(), output=args.output)
             if args.command == "reproduce":
                 expected = asset("expected.json")
                 comparison = {"expected_version": expected["ree_version"], "actual_version": __version__,
                               "fixture_matches": expected["fixture_hash"] == digest(asset("frozen.json")),
-                              "dataset_matches": expected["dataset_hash"] == manifest["dataset_hash"],
+                              "raw_dataset_matches": expected["dataset_hash"] == manifest["dataset_hash"],
+                              "dataset_matches": expected["dataset_hash"] == manifest["reference_compatible_dataset_hash"],
+                              "tolerance": "Only transformation ree_version normalized to reference version; all other values exact",
                               "counts_match": expected["record_counts"] == manifest["record_counts"]}
-                passed = comparison["expected_version"] == __version__ and all(
+                passed = all(
                     comparison[k] for k in ["fixture_matches", "dataset_matches", "counts_match"])
                 write_json(root / "provenance/reproduction_check.json", {**comparison, "passed": passed})
                 manifest["reproduction_passed"] = passed
@@ -118,6 +148,8 @@ def main(argv=None):
                 return print_run(*apply_review(args.run_dir, args.decisions, args.output))
             manifest, _ = load_replay(args.run_dir)
             print(f"Pending reviews: {manifest['record_counts']['pending_reviews']}")
+            if (args.run_dir / "review/context.html").exists():
+                print(f"Read context: {args.run_dir / 'review/context.html'}")
             print(f"Copy and edit: {args.run_dir / 'review/decisions_template.csv'}")
         elif args.command == "export":
             manifest, snapshot = load_replay(args.run)

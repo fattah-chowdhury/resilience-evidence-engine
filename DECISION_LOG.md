@@ -58,3 +58,20 @@ Date: 2026-09-07; version: 0.1.0.dev0
 - Remain experimental v0.1.0. Full master-controller acceptance cannot be claimed while real live access,
   online advisory review and actual QGIS/R verification remain open. MASTER PROMPT 2 can audit/extend this
   concrete checkpoint; it should not assume those gates passed.
+
+
+## 2026-09-09 — operations and recovery
+
+Preserved f25280b and its reference files. Workspace maintenance required recovery from the saved
+Git bundle and reconstructing interrupted edits from execution history; no architecture was restarted.
+Use source-batch acquisition checkpoints and child runs, not in-place resume. Keep partial failures
+visible. Cache only permitted USGS summaries with a one-hour TTL and no silent stale fallback.
+Register adapters explicitly from trusted Python. Retain distinct locations when a provider updates
+coordinates under the same record ID. Duplicate provenance cites its two contributing records to avoid
+repeating the entire input set per pair. Keep original reference expectations and expose a narrowly
+defined version-string-only comparison tolerance. Current tests use unittest because network bootstrap
+cannot restore development dependencies; historical pytest evidence is labeled separately.
+
+The final inventory check excludes only provenance/run_manifest.json (the self-referential manifest),
+not every file sharing that basename. Tests reject an extra nested namesake and malformed non-object
+manifests. All 28 operational checks pass on the installed current wheel after this repair.

@@ -1,0 +1,33 @@
+         6144746 function calls (6144497 primitive calls) in 20.671 seconds
+
+   Ordered by: cumulative time
+   List reduced from 334 to 12 due to restriction <12>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    2.603    2.603   20.668   20.668 pipeline.py:97(process_records)
+     9900    0.034    0.000    7.830    0.001 difflib.py:597(ratio)
+     9900    0.418    0.000    7.769    0.001 difflib.py:421(get_matching_blocks)
+    29358    4.528    0.000    7.137    0.000 difflib.py:305(find_longest_match)
+   123402    0.322    0.000    6.549    0.000 __init__.py:183(dumps)
+   123402    0.191    0.000    6.202    0.000 encoder.py:183(encode)
+    99491    0.058    0.000    6.181    0.000 models.py:13(canonical)
+   104845    5.913    0.000    5.913    0.000 encoder.py:205(iterencode)
+        1    0.518    0.518    5.338    5.338 linkage.py:17(group_claims)
+    47120    0.082    0.000    4.469    0.000 models.py:18(digest)
+  3119881    2.726    0.000    2.726    0.000 {method 'get' of 'dict' objects}
+     9900    0.005    0.000    1.282    0.000 difflib.py:120(__init__)
+
+
+         6144746 function calls (6144497 primitive calls) in 20.671 seconds
+
+   Ordered by: cumulative time
+   List reduced from 334 to 5 due to restriction <'extract|resolve|group_claims'>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.518    0.518    5.338    5.338 linkage.py:17(group_claims)
+      100    0.002    0.000    0.013    0.000 resolution.py:147(extract)
+      100    0.001    0.000    0.008    0.000 resolution.py:133(resolve)
+      100    0.001    0.000    0.007    0.000 resolution.py:179(extract_quantities)
+      100    0.001    0.000    0.005    0.000 resolution.py:20(resolve_time)
+
+

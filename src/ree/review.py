@@ -8,31 +8,7 @@ from hashlib import sha256
 from ree import __version__
 from ree.config import ProjectConfig
 from ree.pipeline import run, timestamp
-from ree.storage import validate_database
-
-
-def validate_run(root):
-    root = root.resolve()
-    manifest = json.loads((root / "provenance/run_manifest.json").read_text(encoding="utf-8"))
-    problems = []
-    if manifest.get("status") not in {"succeeded", "partial"}:
-        problems.append("Run is not a completed evidence dataset")
-    for relative, expected in manifest.get("export_files", {}).items():
-        path = (root / relative).resolve()
-        if not path.is_relative_to(root) or not path.is_file():
-            problems.append(f"Missing or unsafe output: {relative}")
-        elif sha256(path.read_bytes()).hexdigest() != expected:
-            problems.append(f"Changed output: {relative}")
-    database = root / "data/evidence.sqlite"
-    if database.exists():
-        db = sqlite3.connect(database.as_uri() + "?mode=ro", uri=True)
-        try:
-            problems.extend(validate_database(db))
-        finally:
-            db.close()
-    else:
-        problems.append("Missing SQLite evidence database")
-    return manifest, problems
+from ree.integrity import validate_run
 
 
 def load_replay(root):
@@ -42,6 +18,7 @@ def load_replay(root):
     snapshot = json.loads((root / "provenance/replay.json").read_text(encoding="utf-8"))
     if snapshot["ree_version"] != __version__:
         raise ValueError("Replay requires the original REE version")
+    snapshot.setdefault("acquisition_failed_records", manifest.get("failed_records", []))
     return manifest, snapshot
 
 

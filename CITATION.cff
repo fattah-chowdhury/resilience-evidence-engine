@@ -3,8 +3,8 @@ message: "If you use this experimental software, cite its title and version. Own
 title: "Resilience Evidence Engine"
 authors:
   - name: "Resilience Evidence Engine project"
-version: "0.1.0"
-date-released: "2026-09-07"
+version: "0.2.0"
+date-released: "2026-09-09"
 license: MIT
 type: software
 abstract: "Local software for traceable claims, uncertainty, evidence review and GIS exports."

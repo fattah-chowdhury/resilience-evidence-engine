@@ -1,7 +1,6 @@
 """Small bounded local ingestion; URLs remain metadata and are never crawled."""
 
 import csv
-import io
 import json
 import xml.etree.ElementTree as ET
 import zipfile
@@ -84,13 +83,24 @@ def raw_rows(path, max_bytes):
         frame = frame.to_crs(4326)
         yield from json.loads(frame.to_json())["features"]
         return
-    text = path.read_text(encoding="utf-8-sig")
     if suffix in {".csv", ".tsv"}:
-        reader = csv.DictReader(io.StringIO(text), delimiter="\t" if suffix == ".tsv" else ",")
-        if not reader.fieldnames or len(reader.fieldnames) != len(set(reader.fieldnames)):
-            raise ValueError("CSV requires distinct column headers")
-        yield from reader
-    elif suffix in {".json", ".geojson"}:
+        with path.open(encoding="utf-8-sig", newline="") as stream:
+            reader = csv.DictReader(stream, delimiter="\t" if suffix == ".tsv" else ",")
+            if not reader.fieldnames or len(reader.fieldnames) != len(set(reader.fieldnames)):
+                raise ValueError("CSV requires distinct column headers")
+            yield from reader
+        return
+    if suffix in {".jsonl", ".ndjson"}:
+        with path.open(encoding="utf-8-sig") as stream:
+            for line in stream:
+                if line.strip():
+                    try:
+                        yield json.loads(line)
+                    except json.JSONDecodeError:
+                        yield {"__parse_error__": "Invalid JSON line"}
+        return
+    text = path.read_text(encoding="utf-8-sig")
+    if suffix in {".json", ".geojson"}:
         value = json.loads(text)
         if isinstance(value, list):
             yield from value
@@ -100,13 +110,6 @@ def raw_rows(path, max_bytes):
             yield from value["features"]
         else:
             raise ValueError("JSON input must be a list or GeoJSON FeatureCollection")
-    elif suffix in {".jsonl", ".ndjson"}:
-        for line in text.splitlines():
-            if line.strip():
-                try:
-                    yield json.loads(line)
-                except json.JSONDecodeError:
-                    yield {"__parse_error__": "Invalid JSON line"}
     elif suffix in {".txt", ".html", ".htm"}:
         yield {"text": plain_html(text) if suffix != ".txt" else text}
     elif suffix in {".rss", ".xml", ".atom"}:

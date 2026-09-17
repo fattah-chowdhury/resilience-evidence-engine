@@ -1,0 +1,41 @@
+test_cache_corruption_is_not_silently_replaced (test_operations.OperationsTests.test_cache_corruption_is_not_silently_replaced) ... ok
+test_cache_only_and_expired_never_call_transport (test_operations.OperationsTests.test_cache_only_and_expired_never_call_transport) ... ok
+test_cache_refresh_and_clear_preserve_unrelated_files (test_operations.OperationsTests.test_cache_refresh_and_clear_preserve_unrelated_files) ... ok
+test_cache_refuses_symlinks_and_unapproved_body (test_operations.OperationsTests.test_cache_refuses_symlinks_and_unapproved_body) ... ok
+test_cache_reuses_original_provenance (test_operations.OperationsTests.test_cache_reuses_original_provenance) ... ok
+test_claim_and_event_link_review_are_immutable (test_operations.OperationsTests.test_claim_and_event_link_review_are_immutable) ... ok
+test_cli_comparison_cache_and_resume (test_operations.OperationsTests.test_cli_comparison_cache_and_resume) ... ok
+test_configuration_examples_without_code_changes (test_operations.OperationsTests.test_configuration_examples_without_code_changes) ... ok
+test_copy_detection_and_event_identity_are_separate (test_operations.OperationsTests.test_copy_detection_and_event_identity_are_separate) ... ok
+test_corrupt_checkpoint_refused (test_operations.OperationsTests.test_corrupt_checkpoint_refused) ... ERROR: Run 20260909T133817_0e804bbacf failed (FileNotFoundError); checkpoint retained
+ok
+test_discovery_contains_actionable_metadata (test_operations.OperationsTests.test_discovery_contains_actionable_metadata) ... ok
+test_duplicate_provenance_references_only_its_document_pair (test_operations.OperationsTests.test_duplicate_provenance_references_only_its_document_pair) ... ok
+test_event_geometry_and_link_corruption_detected (test_operations.OperationsTests.test_event_geometry_and_link_corruption_detected) ... ok
+test_external_adapter_documented_contract (test_operations.OperationsTests.test_external_adapter_documented_contract) ... ok
+test_frozen_values_and_only_declared_version_tolerance (test_operations.OperationsTests.test_frozen_values_and_only_declared_version_tolerance) ... ok
+test_integrity_inventory_counts_and_config (test_operations.OperationsTests.test_integrity_inventory_counts_and_config) ... ok
+test_live_timeout_and_explicit_resume (test_operations.OperationsTests.test_live_timeout_and_explicit_resume) ... ERROR: Run 20260909T133818_5c65f7ccbe failed (TimeoutError); checkpoint retained
+WARNING: Run has 0 failed records and 1 notices; inspect manifest
+ok
+test_partial_replay_preserves_failures (test_operations.OperationsTests.test_partial_replay_preserves_failures) ... WARNING: Run has 1 failed records and 0 notices; inspect manifest
+WARNING: Run has 1 failed records and 0 notices; inspect manifest
+ok
+test_provider_updates_keep_distinct_location_versions (test_operations.OperationsTests.test_provider_updates_keep_distinct_location_versions) ... ok
+test_public_checkpoint_and_exports_suppress_private_canary (test_operations.OperationsTests.test_public_checkpoint_and_exports_suppress_private_canary) ... ERROR: Run 20260909T133818_89e10d2fea failed (OSError); checkpoint retained
+ok
+test_resume_downstream_failure_needs_no_original_input (test_operations.OperationsTests.test_resume_downstream_failure_needs_no_original_input) ... ERROR: Run 20260909T133818_ea4f56dc0c failed (OSError); checkpoint retained
+ok
+test_resume_keeps_finished_inputs_and_original_config_base (test_operations.OperationsTests.test_resume_keeps_finished_inputs_and_original_config_base) ... ERROR: Run 20260909T133818_1408b4bfc4 failed (FileNotFoundError); checkpoint retained
+ok
+test_review_context_preserves_location_time_uncertainty (test_operations.OperationsTests.test_review_context_preserves_location_time_uncertainty) ... ok
+test_streaming_jsonl_and_csv_budget (test_operations.OperationsTests.test_streaming_jsonl_and_csv_budget) ... ok
+test_syndicated_reports_do_not_inflate_corroboration (test_operations.OperationsTests.test_syndicated_reports_do_not_inflate_corroboration) ... ok
+test_transport_rate_limit_then_success_and_malformed_response (test_operations.OperationsTests.test_transport_rate_limit_then_success_and_malformed_response) ... ok
+test_unsupported_language_and_bad_gazetteer_are_explicit (test_operations.OperationsTests.test_unsupported_language_and_bad_gazetteer_are_explicit) ... ok
+test_utf8_csv_and_geojson_geometry_roundtrip (test_operations.OperationsTests.test_utf8_csv_and_geojson_geometry_roundtrip) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 1.694s
+
+OK

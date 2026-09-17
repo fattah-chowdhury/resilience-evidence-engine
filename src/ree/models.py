@@ -66,6 +66,8 @@ class Record(StrictModel):
 
     @model_validator(mode="after")
     def valid_record(self):
+        if not self.source_record_id.strip() or not self.source_id.strip():
+            raise ValueError("Record identifiers must not be blank")
         if not self.text.strip():
             raise ValueError("text must not be blank")
         if self.url and not self.url.startswith(("https://", "http://")):

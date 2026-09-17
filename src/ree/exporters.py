@@ -3,6 +3,9 @@
 import csv
 import importlib.util
 import json
+import os
+import tempfile
+from pathlib import Path
 from hashlib import sha256
 from html import escape
 
@@ -16,8 +19,20 @@ FILENAMES = {"source": "sources", "document": "documents", "claim": "claims",
 
 def write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2,
-                               allow_nan=False) + "\n", encoding="utf-8")
+    text = json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2, allow_nan=False) + "\n"
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                         suffix=".tmp", delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(text)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+    finally:
+        if temporary and temporary.exists():
+            temporary.unlink()
+
 
 
 def csv_cell(value):
@@ -91,6 +106,7 @@ def export_all(root, tables, events, proposals, formats, summary):
                "decision", "reviewer", "note"])
     write_json(root / "provenance" / "sources.json", tables["source"])
     write_json(root / "provenance" / "transformations.json", tables["provenance"])
+    review_context(root, tables, events, proposals)
     render_report(root, events, summary)
 
 
@@ -134,7 +150,7 @@ section{background:white;border:1px solid #d3ded9;border-radius:12px;padding:24p
 table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;padding:12px;border-bottom:1px solid #dce5e1}
 .scroll{overflow:auto}a{color:#126c5d}code{background:#eaf0ee;padding:3px 6px}input{padding:10px;border:1px solid #a4bbb3;border-radius:6px;width:min(90%,420px)}
 @media(max-width:640px){.cards{grid-template-columns:repeat(2,1fr)}h1{font-size:30px}main{padding:24px 12px}section{padding:16px}}
-</style><main><div class="eyebrow">RESILIENCE EVIDENCE ENGINE · v0.1</div><h1>Evidence with a traceable path.</h1>
+</style><main><div class="eyebrow">RESILIENCE EVIDENCE ENGINE · v0.2</div><h1>Evidence with a traceable path.</h1>
 <p>Inspect source claims, uncertainty and candidate events. This is a software run report; it does not establish hazard risk or event completeness.</p>'''
     html += cards + '<section><h2>Coordinate overview</h2>' + svg_text
     html += (f'<p>{len(points)} of {len(events)} candidate events have a point representation. '
@@ -145,6 +161,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;p
     data_name = next((name for name in ("claims.csv", "claims.json", "claims.parquet")
                       if (root / "data" / name).is_file()), "evidence.sqlite")
     html += (f'<section><h2>Inspect and review</h2><p>Start with <a href="../data/{data_name}">{data_name}</a>, '
+             '<a href="../review/context.html">review context</a>, '
              '<a href="../review/decisions_template.csv">the review template</a>, and '
              '<a href="../provenance/run_manifest.json">the run manifest</a>. '
              'The SQLite database and replay snapshot are authoritative for this run.</p>'
@@ -156,4 +173,44 @@ table{border-collapse:collapse;width:100%;font-size:14px}td,th{text-align:left;p
 
 def file_hashes(root):
     return {p.relative_to(root).as_posix(): sha256(p.read_bytes()).hexdigest()
-            for p in sorted(root.rglob("*")) if p.is_file() and p.name != "run_manifest.json"}
+            for p in sorted(root.rglob("*"))
+            if p.is_file() and p != root / "provenance/run_manifest.json"}
+
+
+def review_context(root, tables, events, proposals):
+    """Expose already-admitted source text, parent geography and uncalibrated confidence."""
+    documents = {d['document_id']: d for d in tables['document']}
+    sources = {s['source_id']: s for s in tables['source']}
+    locations = {p['location_id']: p for p in tables['location']}
+    contexts = {}
+    for claim in tables['claim']:
+        doc = documents[claim['document_id']]
+        raw = json.loads(doc['metadata_json'])['input_record']
+        metadata = json.loads(claim['metadata_json'])
+        candidates = []
+        for place in metadata['locations']:
+            parents, parent = [], place.get('parent_id')
+            while parent:
+                parents.append({'id': parent, 'name': locations[parent]['name']})
+                parent = locations[parent]['parent_id']
+            candidates.append({**place, 'parent_geography': parents})
+        contexts[claim['claim_id']] = {'claim_id': claim['claim_id'], 'statement': claim['statement'],
+            'source': sources[doc['source_id']]['provider'], 'url': raw['url'], 'title': raw['title'],
+            'original_text': raw['text'], 'original_location': raw['location_text'],
+            'original_date': raw['date_text'], 'time_interpretation': metadata['time'], 'candidates': candidates}
+    rows = [{**r, **contexts[r['claim_id']]} for r in tables['review']]
+    write_json(root / 'review/context.json', rows)
+    by_event = {e['event_id']: {'event': e, 'claims': [contexts[r['claim_id']]
+                for r in tables['event_claim'] if r['event_id'] == e['event_id']]} for e in events}
+    write_json(root / 'review/event_link_context.json', [{**p,
+        'left': by_event[p['left_event_id']], 'right': by_event[p['right_event_id']]} for p in proposals])
+    page = ('<!doctype html><html lang="en"><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width,initial-scale=1">'
+            '<title>REE review context</title><style>body{font:16px/1.5 system-ui;max-width:1000px;'
+            'margin:auto;padding:24px}pre{white-space:pre-wrap;overflow-wrap:anywhere;'
+            'background:#f2f5f4;padding:16px}section{margin:32px 0}</style><h1>Review context</h1>'
+            '<p>Null confidence means uncalibrated. Inspect sources before deciding. Copy the decision '
+            'template outside this immutable run. Event pairs are in event_link_context.json.</p>')
+    for row in rows:
+        page += '<section><h2>' + escape(row['reason']) + '</h2><pre>' + escape(json.dumps(row, ensure_ascii=False, indent=2)) + '</pre></section>'
+    (root / 'review/context.html').write_text(page + '</html>', encoding='utf-8')

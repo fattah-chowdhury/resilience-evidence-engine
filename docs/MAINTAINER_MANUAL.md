@@ -1,6 +1,6 @@
 # Maintainer manual
 
-Version 0.1.0 · 2026-09-07
+Version 0.2.0 · 2026-09-09
 
 ## Resume safely
 
@@ -50,14 +50,13 @@ consistent with actual commands. Only broaden tests to resolve a concrete risk o
 | cli | Only implemented commands and honest exit statuses |
 
 SourceAdapter defines discover, collect, normalize, validate and provenance. Add a provider by creating
-an implementation, adding rights/access metadata to the registry, registering it explicitly in pipeline
-acquisition and adding transport/normalization/failure tests. Never enable an arbitrary URL or install-time
+an implementation, adding rights/access metadata to the registry, registering it explicitly through `run(..., adapters={id: factory}, source_registry=[metadata])` and adding transport/normalization/failure tests. Never enable an arbitrary URL or install-time
 code discovery by default. Provider identity is distinct from publication/channel identity.
 
 The current HTTP client uses a fixed HTTPS host/path, public DNS checks and redirect refusal. It does
 not pin resolved addresses across the separate urllib connection; retain HTTPS verification and treat
 strong adversarial DNS-rebinding hardening as future work. Response-size and record budgets are bounded;
-this is a small-data engine, not an exhaustive or resumable catalog crawler.
+this is a small-data engine, not an exhaustive catalog crawler. Acquisition checkpoints can resume completed input/source batches.
 
 ## Configurable assets
 
@@ -103,5 +102,34 @@ pins against its advisory service; record failures and scope. A clean audit is n
 
 Docker assets are a convenience and remain unexecuted until a Docker host is available. Before claiming
 all master-controller gates passed, close live USGS acceptance and actual QGIS/R interoperability,
-then rerun release gates only where needed. No GitHub, PyPI or DOI publication has occurred. A public
+then rerun release gates only where needed. This operations run did not publish to GitHub, PyPI or a DOI service. A public
 release needs a real owner/repository identity, approved author/citation metadata and destination.
+
+
+## v0.2.0 operational contracts
+
+`cache.py` owns only public USGS response cache entries. `integrity.py` validates complete inventories,
+relational schema/counts, semantic dataset fingerprints, categories, event links, geometry and provenance.
+`operations.py` exposes resume_run and compare_runs. Saved-run replay is version-strict.
+New run(config, ..., adapters={id: factory}, source_registry=[source]) allows explicit trusted Python
+extensions without core edits. Each adapter supplies discover, collect, normalize, validate and provenance.
+Collect returns (Record-compatible objects, structured errors); the boundary revalidates source IDs,
+storage rights, suitability, budgets and JSON provenance. No automatic executable imports from YAML.
+The complete external example is under examples/external_adapter. It is synthetic and never proves live access.
+
+Run the standard-library tests with `python -m unittest discover -s tests -p test_operations.py -v`.
+The existing pytest suite also discovers this unittest class when dev dependencies are installed.
+No line-coverage percentage is claimed. CI definitions are configured but have not been run remotely here.
+
+Reference reproduction keeps expected.json and frozen.json byte-for-byte unchanged. The original dataset
+hash includes the provenance software version. v0.2.0 stores truthful current-version provenance and checks
+a comparison copy with only transformation.ree_version set to the original version; raw hashes remain visible.
+No other hash tolerance is permitted. New duplicate-pair provenance records cite just their two documents;
+the reference has zero duplicate pairs, so that correction does not change reference evidence values.
+
+For release verification, distinguish a completely fresh dependency install from an installed-wheel test
+using preinstalled runtime dependencies. Current fresh network bootstrap and the restored pytest/GIS/Ruff
+packages were blocked by network approval cancellation after workspace maintenance. Historical v0.1.0
+93-test and clean-install evidence remains in audit/; current evidence belongs in audit/operations/.
+Do not report those earlier results as a current full-suite pass. Build paths in the historical audit copy
+are sanitized for distribution; the original v0.1.0 archive remains unchanged.

@@ -1,0 +1,536 @@
+{
+  "date": "2026-09-09T13:49:50.380286+00:00",
+  "version": "0.2.0",
+  "environment_scope": "Venv with system-site-packages; installed wheel with --no-index --no-deps; pristine dependencies NOT verified",
+  "outside_source_tree": true,
+  "PYTHONPATH_unset": true,
+  "commands": [
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/python",
+        "-c",
+        "import ree,json; print(json.dumps({\"version\":ree.__version__,\"module\":ree.__file__}))"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "{\"version\": \"0.2.0\", \"module\": \"<workspace>/operations-checks/install-env/lib/python3.12/site-packages/ree/__init__.py\"}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "--version"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "0.2.0\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "--help"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "usage: ree [-h] [--version] [--log-level {INFO,WARNING,ERROR,DEBUG}]\n           {init,demo,reproduce,run,compare,cache,ingest,sources,discover,validate,review,export,report,doctor,schema}\n           ...\n\nREE: traceable evidence, uncertainty, review and GIS\n\npositional arguments:\n  {init,demo,reproduce,run,compare,cache,ingest,sources,discover,validate,review,export,report,doctor,schema}\n    init                Create a ready-to-run offline project YAML\n    demo                Run the bundled real-facts/excerpts reference offline\n    reproduce           Verify the frozen reference dataset\n    run                 Run a configured offline, local, live or hybrid study\n    compare             Compare validated run counts, grades, places and\n                        sources\n    cache               Inspect or clear public REE catalog cache entries\n    ingest              Process one local file privately\n    sources             Show curated source metadata and implementation status\n    discover            Match registered sources to a study\n    validate            Validate configuration or run data/file integrity\n    review              Inspect queues or apply a decision CSV into a new run\n    export              Re-export a validated saved run into a new run\n    report              Locate an existing run report\n    doctor              Diagnose local dependencies, schema, config and output\n                        access\n    schema              Print the normalized relational schema\n\noptions:\n  -h, --help            show this help message and exit\n  --version             show program's version number and exit\n  --log-level {INFO,WARNING,ERROR,DEBUG}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "doctor"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "{\n  \"ree\": \"0.2.0\",\n  \"python\": \"3.12.14\",\n  \"sqlite\": \"3.53.1\",\n  \"sqlite_integrity\": \"ok\",\n  \"dependencies\": {\n    \"pydantic\": \"2.13.5\",\n    \"PyYAML\": \"6.0.3\"\n  },\n  \"optional_modules\": {\n    \"openpyxl\": true,\n    \"pyarrow\": false,\n    \"geopandas\": false\n  },\n  \"output_parent_writable\": true,\n  \"network_tested\": false,\n  \"paid_credentials_required\": false,\n  \"scope\": \"local checks only; live access and desktop GIS are separate gates\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "schema"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "CREATE TABLE IF NOT EXISTS source (\n source_id TEXT PRIMARY KEY NOT NULL, provider TEXT NOT NULL,\n origin_group TEXT, rights_json TEXT NOT NULL DEFAULT '{}'\n);\nCREATE TABLE IF NOT EXISTS document (\n document_id TEXT PRIMARY KEY NOT NULL,\n source_id TEXT NOT NULL REFERENCES source(source_id),\n source_record_id TEXT NOT NULL, content_hash TEXT NOT NULL,\n text TEXT, metadata_json TEXT NOT NULL DEFAULT '{}'\n);\nCREATE TABLE IF NOT EXISTS claim (\n claim_id TEXT PRIMARY KEY NOT NULL,\n document_id TEXT NOT NULL REFERENCES document(document_id),\n statement TEXT NOT NULL, category TEXT, start_date TEXT, end_date TEXT,\n temporal_precision TEXT NOT NULL DEFAULT 'unknown'\n CHECK(temporal_precision IN ('exact','month','week','range','relative','unknown')),\n metadata_json TEXT NOT NULL DEFAULT '{}'\n);\nCREATE TABLE IF NOT EXISTS location (\n location_id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL,\n parent_id TEXT REFERENCES location(location_id), geometry_json TEXT,\n precision TEXT NOT NULL DEFAULT 'unknown',\n representational INTEGER NOT NULL DEFAULT 0 CHECK(representational IN (0,1))\n);\nCREATE TABLE IF NOT EXISTS claim_location (\n claim_id TEXT NOT NULL REFERENCES claim(claim_id),\n location_id TEXT NOT NULL REFERENCES location(location_id),\n status TEXT NOT NULL CHECK(status IN ('candidate','selected','rejected')),\n PRIMARY KEY(claim_id, location_id)\n);\nCREATE TABLE IF NOT EXISTS event (\n event_id TEXT PRIMARY KEY NOT NULL, category TEXT,\n start_date TEXT, end_date TEXT, metadata_json TEXT NOT NULL DEFAULT '{}'\n);\nCREATE TABLE IF NOT EXISTS event_claim (\n event_id TEXT NOT NULL REFERENCES event(event_id),\n claim_id TEXT NOT NULL REFERENCES claim(claim_id),\n method TEXT NOT NULL, review_status TEXT NOT NULL DEFAULT 'pending',\n PRIMARY KEY(event_id, claim_id)\n);\nCREATE TABLE IF NOT EXISTS assessment (\n assessment_id TEXT PRIMARY KEY NOT NULL,\n claim_id TEXT NOT NULL REFERENCES claim(claim_id), indicators_json TEXT NOT NULL,\n grade TEXT CHECK(grade IN ('A','B','C','D','X')),\n decision TEXT NOT NULL CHECK(decision IN ('AUTO_ACCEPT','REVIEW','REJECT')),\n rule_version TEXT NOT NULL\n);\nCREATE TABLE IF NOT EXISTS provenance (\n provenance_id TEXT PRIMARY KEY NOT NULL, entity TEXT NOT NULL,\n entity_id TEXT NOT NULL, field TEXT NOT NULL, transformation_json TEXT NOT NULL\n);\nCREATE TABLE IF NOT EXISTS review (\n review_id TEXT PRIMARY KEY NOT NULL, claim_id TEXT NOT NULL REFERENCES claim(claim_id),\n reason TEXT NOT NULL,\n status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','accepted','rejected'))\n);\nCREATE INDEX IF NOT EXISTS idx_document_source ON document(source_id);\nCREATE INDEX IF NOT EXISTS idx_claim_document ON claim(document_id);\nCREATE INDEX IF NOT EXISTS idx_event_claim_claim ON event_claim(claim_id);\nCREATE TABLE IF NOT EXISTS document_duplicate (\n left_document_id TEXT NOT NULL REFERENCES document(document_id),\n right_document_id TEXT NOT NULL REFERENCES document(document_id),\n kind TEXT NOT NULL, similarity REAL NOT NULL,\n PRIMARY KEY(left_document_id, right_document_id)\n);\nCREATE TABLE IF NOT EXISTS review_decision (\n decision_id TEXT PRIMARY KEY NOT NULL, review_id TEXT NOT NULL REFERENCES review(review_id),\n reviewer TEXT NOT NULL, decision TEXT NOT NULL CHECK(decision IN ('accepted','rejected')),\n note TEXT NOT NULL, location_id TEXT REFERENCES location(location_id),\n decided_at TEXT NOT NULL, decision_file_hash TEXT NOT NULL\n);\n\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "demo",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/demo"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "SUCCEEDED: <workspace>/operations-checks/final-smoke/demo/flagship/20260909T134951_16fee5efca\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/final-smoke/demo/flagship/20260909T134951_16fee5efca/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "reproduce",
+        "flagship",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/frozen"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "Reproduction: PASS\nSUCCEEDED: <workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "validate",
+        "--run",
+        "<workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS: run integrity\nReport: <workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "review",
+        "<workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "Pending reviews: 12\nRead context: <workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0/review/context.html\nCopy and edit: <workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0/review/decisions_template.csv\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "report",
+        "--run",
+        "<workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS: run integrity\nReport: <workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "init",
+        "my-project"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "Created my-project/project.yml\nNext: ree run --config my-project/project.yml\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "validate",
+        "--config",
+        "my-project/project.yml"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS: configuration; sha256=be75e36dd762fc8dbada2126c64f50f554b2ecfcfb42e1473bb2aa0dda6b7fa3\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "run",
+        "--config",
+        "my-project/project.yml"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "SUCCEEDED: <workspace>/operations-checks/final-smoke/my-project/outputs/my-project/20260909T134952_16917d316e\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/final-smoke/my-project/outputs/my-project/20260909T134952_16917d316e/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "sources"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "[\n  {\n    \"id\": \"usgs_catalog\",\n    \"provider\": \"U.S. Geological Survey\",\n    \"origin_group\": \"USGS\",\n    \"source_type\": \"structured_catalog\",\n    \"access_method\": \"https_api\",\n    \"status\": \"implemented_unverified_live\",\n    \"license\": \"USGS-produced factual data: U.S. public domain\",\n    \"terms_url\": \"https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits\",\n    \"documentation_url\": \"https://earthquake.usgs.gov/fdsnws/event/1/\",\n    \"geographic_coverage\": [\n      \"global\"\n    ],\n    \"temporal_coverage\": {\n      \"start\": \"1900-01-01\",\n      \"end\": null\n    },\n    \"languages\": [\n      \"en\"\n    ],\n    \"topics\": [\n      \"earthquake\"\n    ],\n    \"data_types\": [\n      \"geojson\"\n    ],\n    \"rate_limit\": {\n      \"client_requests_per_second\": 1,\n      \"provider_limit\": \"not asserted\"\n    },\n    \"redistribution_allowed\": true,\n    \"raw_content_storage_allowed\": true,\n    \"authentication_required\": false,\n    \"checked_on\": \"2026-09-07\",\n    \"scope\": \"Preferred catalog fields only; no linked third-party products, images, or pages.\"\n  },\n  {\n    \"id\": \"usgs_pages\",\n    \"provider\": \"U.S. Geological Survey\",\n    \"origin_group\": \"USGS\",\n    \"source_type\": \"curated_page_extract\",\n    \"access_method\": \"bundled_file\",\n    \"status\": \"frozen_only\",\n    \"license\": \"USGS-produced factual information: U.S. public domain\",\n    \"terms_url\": \"https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits\",\n    \"geographic_coverage\": [\n      \"global\"\n    ],\n    \"temporal_coverage\": {\n      \"start\": \"2024-01-01\",\n      \"end\": \"2024-04-03\"\n    },\n    \"languages\": [\n      \"en\"\n    ],\n    \"topics\": [\n      \"earthquake\",\n      \"tsunami\"\n    ],\n    \"data_types\": [\n      \"json\",\n      \"text\"\n    ],\n    \"rate_limit\": null,\n    \"redistribution_allowed\": true,\n    \"raw_content_storage_allowed\": true,\n    \"authentication_required\": false,\n    \"checked_on\": \"2026-09-07\",\n    \"scope\": \"Only included fact transcriptions and short USGS-authored excerpt. Never interpreted as an API snapshot.\"\n  },\n  {\n    \"id\": \"nasa_excerpt\",\n    \"provider\": \"NASA Science / Photojournal\",\n    \"origin_group\": \"NASA-Photojournal\",\n    \"source_type\": \"excerpt\",\n    \"access_method\": \"bundled_file\",\n    \"status\": \"frozen_only\",\n    \"license\": \"NASA factual informational-use guidelines; excerpt scope only\",\n    \"terms_url\": \"https://www.nasa.gov/nasa-brand-center/images-and-media/\",\n    \"geographic_coverage\": [\n      \"Bangladesh\"\n    ],\n    \"temporal_coverage\": {\n      \"start\": \"2023-10-01\",\n      \"end\": \"2024-05-07\"\n    },\n    \"languages\": [\n      \"en\"\n    ],\n    \"topics\": [\n      \"flood\"\n    ],\n    \"data_types\": [\n      \"text\"\n    ],\n    \"rate_limit\": null,\n    \"redistribution_allowed\": true,\n    \"raw_content_storage_allowed\": true,\n    \"authentication_required\": false,\n    \"checked_on\": \"2026-09-07\",\n    \"scope\": \"Eight-word text excerpt only, educational software example; no images, logos or third-party basemap. REE outputs are not NASA-reviewed.\"\n  },\n  {\n    \"id\": \"reliefweb\",\n    \"provider\": \"OCHA ReliefWeb\",\n    \"origin_group\": null,\n    \"source_type\": \"humanitarian_reports\",\n    \"access_method\": \"api\",\n    \"status\": \"planned_requires_approval\",\n    \"license\": \"item-specific; unresolved\",\n    \"terms_url\": \"https://apidoc.reliefweb.int/parameters\",\n    \"geographic_coverage\": [\n      \"global\"\n    ],\n    \"temporal_coverage\": {\n      \"start\": null,\n      \"end\": null\n    },\n    \"languages\": [\n      \"en\"\n    ],\n    \"topics\": [\n      \"flood\",\n      \"cyclone\",\n      \"displacement\"\n    ],\n    \"data_types\": [\n      \"json\"\n    ],\n    \"rate_limit\": null,\n    \"redistribution_allowed\": null,\n    \"raw_content_storage_allowed\": null,\n    \"authentication_required\": true,\n    \"checked_on\": \"2026-09-07\",\n    \"scope\": \"Not enabled. Approved appname and item rights required.\"\n  }\n]\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "discover",
+        "--config",
+        "<workspace>/resilience-evidence-engine/configs/examples/usgs_historical_check.yml"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "[\n  {\n    \"id\": \"usgs_catalog\",\n    \"provider\": \"U.S. Geological Survey\",\n    \"origin_group\": \"USGS\",\n    \"source_type\": \"structured_catalog\",\n    \"access_method\": \"https_api\",\n    \"status\": \"implemented_unverified_live\",\n    \"license\": \"USGS-produced factual data: U.S. public domain\",\n    \"terms_url\": \"https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits\",\n    \"documentation_url\": \"https://earthquake.usgs.gov/fdsnws/event/1/\",\n    \"geographic_coverage\": [\n      \"global\"\n    ],\n    \"temporal_coverage\": {\n      \"start\": \"1900-01-01\",\n      \"end\": null\n    },\n    \"languages\": [\n      \"en\"\n    ],\n    \"topics\": [\n      \"earthquake\"\n    ],\n    \"data_types\": [\n      \"geojson\"\n    ],\n    \"rate_limit\": {\n      \"client_requests_per_second\": 1,\n      \"provider_limit\": \"not asserted\"\n    },\n    \"redistribution_allowed\": true,\n    \"raw_content_storage_allowed\": true,\n    \"authentication_required\": false,\n    \"checked_on\": \"2026-09-07\",\n    \"scope\": \"Preferred catalog fields only; no linked third-party products, images, or pages.\",\n    \"relevant\": true,\n    \"live_eligible\": true,\n    \"reasons\": []\n  },\n  {\n    \"id\": \"usgs_pages\",\n    \"provider\": \"U.S. Geological Survey\",\n    \"origin_group\": \"USGS\",\n    \"source_type\": \"curated_page_extract\",\n    \"access_method\": \"bundled_file\",\n    \"status\": \"frozen_only\",\n    \"license\": \"USGS-produced factual information: U.S. public domain\",\n    \"terms_url\": \"https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits\",\n    \"geographic_coverage\": [\n      \"global\"\n    ],\n    \"temporal_coverage\": {\n      \"start\": \"2024-01-01\",\n      \"end\": \"2024-04-03\"\n    },\n    \"languages\": [\n      \"en\"\n    ],\n    \"topics\": [\n      \"earthquake\",\n      \"tsunami\"\n    ],\n    \"data_types\": [\n      \"json\",\n      \"text\"\n    ],\n    \"rate_limit\": null,\n    \"redistribution_allowed\": true,\n    \"raw_content_storage_allowed\": true,\n    \"authentication_required\": false,\n    \"checked_on\": \"2026-09-07\",\n    \"scope\": \"Only included fact transcriptions and short USGS-authored excerpt. Never interpreted as an API snapshot.\",\n    \"relevant\": true,\n    \"live_eligible\": false,\n    \"reasons\": [\n      \"frozen_only\"\n    ]\n  },\n  {\n    \"id\": \"nasa_excerpt\",\n    \"provider\": \"NASA Science / Photojournal\",\n    \"origin_group\": \"NASA-Photojournal\",\n    \"source_type\": \"excerpt\",\n    \"access_method\": \"bundled_file\",\n    \"status\": \"frozen_only\",\n    \"license\": \"NASA factual informational-use guidelines; excerpt scope only\",\n    \"terms_url\": \"https://www.nasa.gov/nasa-brand-center/images-and-media/\",\n    \"geographic_coverage\": [\n      \"Bangladesh\"\n    ],\n    \"temporal_coverage\": {\n      \"start\": \"2023-10-01\",\n      \"end\": \"2024-05-07\"\n    },\n    \"languages\": [\n      \"en\"\n    ],\n    \"topics\": [\n      \"flood\"\n    ],\n    \"data_types\": [\n      \"text\"\n    ],\n    \"rate_limit\": null,\n    \"redistribution_allowed\": true,\n    \"raw_content_storage_allowed\": true,\n    \"authentication_required\": false,\n    \"checked_on\": \"2026-09-07\",\n    \"scope\": \"Eight-word text excerpt only, educational software example; no images, logos or third-party basemap. REE outputs are not NASA-reviewed.\",\n    \"relevant\": false,\n    \"live_eligible\": false,\n    \"reasons\": [\n      \"topic_mismatch\",\n      \"frozen_only\"\n    ]\n  },\n  {\n    \"id\": \"reliefweb\",\n    \"provider\": \"OCHA ReliefWeb\",\n    \"origin_group\": null,\n    \"source_type\": \"humanitarian_reports\",\n    \"access_method\": \"api\",\n    \"status\": \"planned_requires_approval\",\n    \"license\": \"item-specific; unresolved\",\n    \"terms_url\": \"https://apidoc.reliefweb.int/parameters\",\n    \"geographic_coverage\": [\n      \"global\"\n    ],\n    \"temporal_coverage\": {\n      \"start\": null,\n      \"end\": null\n    },\n    \"languages\": [\n      \"en\"\n    ],\n    \"topics\": [\n      \"flood\",\n      \"cyclone\",\n      \"displacement\"\n    ],\n    \"data_types\": [\n      \"json\"\n    ],\n    \"rate_limit\": null,\n    \"redistribution_allowed\": null,\n    \"raw_content_storage_allowed\": null,\n    \"authentication_required\": true,\n    \"checked_on\": \"2026-09-07\",\n    \"scope\": \"Not enabled. Approved appname and item rights required.\",\n    \"relevant\": false,\n    \"live_eligible\": false,\n    \"reasons\": [\n      \"topic_mismatch\",\n      \"planned_requires_approval\",\n      \"storage_rights_unresolved\",\n      \"credentials_or_provider_approval_required\"\n    ]\n  }\n]\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "compare",
+        "<workspace>/operations-checks/final-smoke/demo/flagship/20260909T134951_16fee5efca",
+        "<workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "{\n  \"left\": {\n    \"run_id\": \"20260909T134951_16fee5efca\",\n    \"mode\": \"demo\",\n    \"counts\": {\n      \"acquired\": 4,\n      \"claims\": 5,\n      \"document_duplicate_pairs\": 0,\n      \"documents\": 4,\n      \"event_link_proposals\": 0,\n      \"events\": 4,\n      \"filtered_records_or_claims\": 0,\n      \"pending_reviews\": 12,\n      \"privacy_suppressed_records\": 0,\n      \"repeated_identical_input_records\": 0\n    },\n    \"dataset_hash\": \"e6b1c6798f93548b0d4485c680de1641e6378b2e819a1dea0bf8dd273b80b1f1\",\n    \"sources\": [\n      \"nasa_excerpt\",\n      \"usgs_pages\"\n    ],\n    \"grades\": {\n      \"D\": 1,\n      \"C\": 4\n    },\n    \"locations\": {\n      \"country\": 2,\n      \"city\": 1,\n      \"unresolved_area\": 1,\n      \"model_reference\": 1,\n      \"source_point\": 1\n    },\n    \"collection_outcomes\": [],\n    \"failed_record_count\": 0\n  },\n  \"right\": {\n    \"run_id\": \"20260909T134951_7fdf9e04c0\",\n    \"mode\": \"demo\",\n    \"counts\": {\n      \"acquired\": 4,\n      \"claims\": 5,\n      \"document_duplicate_pairs\": 0,\n      \"documents\": 4,\n      \"event_link_proposals\": 0,\n      \"events\": 4,\n      \"filtered_records_or_claims\": 0,\n      \"pending_reviews\": 12,\n      \"privacy_suppressed_records\": 0,\n      \"repeated_identical_input_records\": 0\n    },\n    \"dataset_hash\": \"e6b1c6798f93548b0d4485c680de1641e6378b2e819a1dea0bf8dd273b80b1f1\",\n    \"sources\": [\n      \"nasa_excerpt\",\n      \"usgs_pages\"\n    ],\n    \"grades\": {\n      \"D\": 1,\n      \"C\": 4\n    },\n    \"locations\": {\n      \"country\": 2,\n      \"city\": 1,\n      \"unresolved_area\": 1,\n      \"model_reference\": 1,\n      \"source_point\": 1\n    },\n    \"collection_outcomes\": [],\n    \"failed_record_count\": 0\n  },\n  \"same_dataset\": true,\n  \"count_delta_right_minus_left\": {\n    \"pending_reviews\": 0,\n    \"acquired\": 0,\n    \"event_link_proposals\": 0,\n    \"privacy_suppressed_records\": 0,\n    \"documents\": 0,\n    \"filtered_records_or_claims\": 0,\n    \"document_duplicate_pairs\": 0,\n    \"repeated_identical_input_records\": 0,\n    \"events\": 0,\n    \"claims\": 0\n  },\n  \"sources_added\": [],\n  \"sources_removed\": [],\n  \"note\": \"Frozen replay and new live collection have different reproducibility guarantees\"\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "cache",
+        "status",
+        "--cache-dir",
+        "<workspace>/operations-checks/final-smoke/cache"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "{\n  \"entries\": [],\n  \"count\": 0,\n  \"ttl_seconds\": 3600\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "cache",
+        "clear",
+        "--cache-dir",
+        "<workspace>/operations-checks/final-smoke/cache"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "{\n  \"removed_entries\": 0\n}\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "--log-level",
+        "DEBUG",
+        "run",
+        "--resume",
+        "<workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/resumed"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "SUCCEEDED: <workspace>/operations-checks/final-smoke/resumed/flagship/20260909T134953_9bdad75c25\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/final-smoke/resumed/flagship/20260909T134953_9bdad75c25/summary/run_report.html\n",
+      "stderr": "INFO: Run 20260909T134953_9bdad75c25 started (demo)\nINFO: Run 20260909T134953_9bdad75c25 succeeded: 5 claims\nDEBUG: Run timings: {'acquisition': 0.002617, 'processing': 0.015397, 'storage_and_exports': 0.034009}\n"
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "validate",
+        "--run",
+        "<workspace>/operations-checks/final-smoke/resumed/flagship/20260909T134953_9bdad75c25"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS: run integrity\nReport: <workspace>/operations-checks/final-smoke/resumed/flagship/20260909T134953_9bdad75c25/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "export",
+        "--run",
+        "<workspace>/operations-checks/final-smoke/frozen/flagship/20260909T134951_7fdf9e04c0",
+        "--format",
+        "csv",
+        "--format",
+        "json",
+        "--format",
+        "geojson",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/exported"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "SUCCEEDED: <workspace>/operations-checks/final-smoke/exported/flagship/20260909T134954_07963a15a9\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/final-smoke/exported/flagship/20260909T134954_07963a15a9/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "validate",
+        "--run",
+        "<workspace>/operations-checks/final-smoke/exported/flagship/20260909T134954_07963a15a9"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS: run integrity\nReport: <workspace>/operations-checks/final-smoke/exported/flagship/20260909T134954_07963a15a9/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/python",
+        "<workspace>/resilience-evidence-engine/examples/external_adapter/run_example.py",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/external-example"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "Synthetic extension: succeeded; <workspace>/operations-checks/final-smoke/external-example/synthetic-adapter/20260909T134954_2dc323fb96\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "run",
+        "--config",
+        "<workspace>/resilience-evidence-engine/configs/examples/bangladesh_excerpt.yml",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/configured-examples"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "SUCCEEDED: <workspace>/operations-checks/final-smoke/configured-examples/bangladesh-excerpt/20260909T134954_e0ce06fee4\n{\n  \"acquired\": 4,\n  \"documents\": 1,\n  \"claims\": 1,\n  \"events\": 1,\n  \"pending_reviews\": 3,\n  \"filtered_records_or_claims\": 3,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/final-smoke/configured-examples/bangladesh-excerpt/20260909T134954_e0ce06fee4/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "validate",
+        "--run",
+        "<workspace>/operations-checks/final-smoke/configured-examples/bangladesh-excerpt/20260909T134954_e0ce06fee4"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS: run integrity\nReport: <workspace>/operations-checks/final-smoke/configured-examples/bangladesh-excerpt/20260909T134954_e0ce06fee4/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "run",
+        "--config",
+        "<workspace>/resilience-evidence-engine/examples/cyclone_monitoring/project.yml",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/configured-examples"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "SUCCEEDED: <workspace>/operations-checks/final-smoke/configured-examples/synthetic-cyclone/20260909T134954_1ddad83806\n{\n  \"acquired\": 3,\n  \"documents\": 2,\n  \"claims\": 1,\n  \"events\": 1,\n  \"pending_reviews\": 2,\n  \"filtered_records_or_claims\": 1,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/final-smoke/configured-examples/synthetic-cyclone/20260909T134954_1ddad83806/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "validate",
+        "--run",
+        "<workspace>/operations-checks/final-smoke/configured-examples/synthetic-cyclone/20260909T134954_1ddad83806"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS: run integrity\nReport: <workspace>/operations-checks/final-smoke/configured-examples/synthetic-cyclone/20260909T134954_1ddad83806/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "run",
+        "--config",
+        "<workspace>/resilience-evidence-engine/examples/custom_csv/project.yml",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/configured-examples"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "SUCCEEDED: <workspace>/operations-checks/final-smoke/configured-examples/synthetic-csv/20260909T134955_65e7b448e3\n{\n  \"acquired\": 3,\n  \"documents\": 3,\n  \"claims\": 3,\n  \"events\": 3,\n  \"pending_reviews\": 8,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 1,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/final-smoke/configured-examples/synthetic-csv/20260909T134955_65e7b448e3/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "validate",
+        "--run",
+        "<workspace>/operations-checks/final-smoke/configured-examples/synthetic-csv/20260909T134955_65e7b448e3"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS: run integrity\nReport: <workspace>/operations-checks/final-smoke/configured-examples/synthetic-csv/20260909T134955_65e7b448e3/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "run",
+        "--config",
+        "<workspace>/resilience-evidence-engine/examples/custom_csv/kenya.yml",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/configured-examples"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "SUCCEEDED: <workspace>/operations-checks/final-smoke/configured-examples/synthetic-kenya/20260909T134955_5189a69f96\n{\n  \"acquired\": 3,\n  \"documents\": 1,\n  \"claims\": 1,\n  \"events\": 1,\n  \"pending_reviews\": 3,\n  \"filtered_records_or_claims\": 2,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/final-smoke/configured-examples/synthetic-kenya/20260909T134955_5189a69f96/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "validate",
+        "--run",
+        "<workspace>/operations-checks/final-smoke/configured-examples/synthetic-kenya/20260909T134955_5189a69f96"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "PASS: run integrity\nReport: <workspace>/operations-checks/final-smoke/configured-examples/synthetic-kenya/20260909T134955_5189a69f96/summary/run_report.html\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "<workspace>/resilience-evidence-engine/tests",
+        "-p",
+        "test_operations.py",
+        "-v"
+      ],
+      "exit": 0,
+      "expected_exit": 0,
+      "stdout": "",
+      "stderr": "test_cache_corruption_is_not_silently_replaced (test_operations.OperationsTests.test_cache_corruption_is_not_silently_replaced) ... ok\ntest_cache_only_and_expired_never_call_transport (test_operations.OperationsTests.test_cache_only_and_expired_never_call_transport) ... ok\ntest_cache_refresh_and_clear_preserve_unrelated_files (test_operations.OperationsTests.test_cache_refresh_and_clear_preserve_unrelated_files) ... ok\ntest_cache_refuses_symlinks_and_unapproved_body (test_operations.OperationsTests.test_cache_refuses_symlinks_and_unapproved_body) ... ok\ntest_cache_reuses_original_provenance (test_operations.OperationsTests.test_cache_reuses_original_provenance) ... ok\ntest_claim_and_event_link_review_are_immutable (test_operations.OperationsTests.test_claim_and_event_link_review_are_immutable) ... ok\ntest_cli_comparison_cache_and_resume (test_operations.OperationsTests.test_cli_comparison_cache_and_resume) ... ok\ntest_configuration_examples_without_code_changes (test_operations.OperationsTests.test_configuration_examples_without_code_changes) ... ok\ntest_copy_detection_and_event_identity_are_separate (test_operations.OperationsTests.test_copy_detection_and_event_identity_are_separate) ... ok\ntest_corrupt_checkpoint_refused (test_operations.OperationsTests.test_corrupt_checkpoint_refused) ... ERROR: Run 20260909T134956_e5b0ce4269 failed (FileNotFoundError); checkpoint retained\nok\ntest_discovery_contains_actionable_metadata (test_operations.OperationsTests.test_discovery_contains_actionable_metadata) ... ok\ntest_duplicate_provenance_references_only_its_document_pair (test_operations.OperationsTests.test_duplicate_provenance_references_only_its_document_pair) ... ok\ntest_event_geometry_and_link_corruption_detected (test_operations.OperationsTests.test_event_geometry_and_link_corruption_detected) ... ok\ntest_external_adapter_documented_contract (test_operations.OperationsTests.test_external_adapter_documented_contract) ... ok\ntest_frozen_values_and_only_declared_version_tolerance (test_operations.OperationsTests.test_frozen_values_and_only_declared_version_tolerance) ... ok\ntest_integrity_inventory_counts_and_config (test_operations.OperationsTests.test_integrity_inventory_counts_and_config) ... ok\ntest_live_timeout_and_explicit_resume (test_operations.OperationsTests.test_live_timeout_and_explicit_resume) ... ERROR: Run 20260909T134957_94d3c7b254 failed (TimeoutError); checkpoint retained\nWARNING: Run has 0 failed records and 1 notices; inspect manifest\nok\ntest_partial_replay_preserves_failures (test_operations.OperationsTests.test_partial_replay_preserves_failures) ... WARNING: Run has 1 failed records and 0 notices; inspect manifest\nWARNING: Run has 1 failed records and 0 notices; inspect manifest\nok\ntest_provider_updates_keep_distinct_location_versions (test_operations.OperationsTests.test_provider_updates_keep_distinct_location_versions) ... ok\ntest_public_checkpoint_and_exports_suppress_private_canary (test_operations.OperationsTests.test_public_checkpoint_and_exports_suppress_private_canary) ... ERROR: Run 20260909T134957_69ba4f18bb failed (OSError); checkpoint retained\nok\ntest_resume_downstream_failure_needs_no_original_input (test_operations.OperationsTests.test_resume_downstream_failure_needs_no_original_input) ... ERROR: Run 20260909T134957_2bb8f59e63 failed (OSError); checkpoint retained\nok\ntest_resume_keeps_finished_inputs_and_original_config_base (test_operations.OperationsTests.test_resume_keeps_finished_inputs_and_original_config_base) ... ERROR: Run 20260909T134957_c3d0b6245d failed (FileNotFoundError); checkpoint retained\nok\ntest_review_context_preserves_location_time_uncertainty (test_operations.OperationsTests.test_review_context_preserves_location_time_uncertainty) ... ok\ntest_streaming_jsonl_and_csv_budget (test_operations.OperationsTests.test_streaming_jsonl_and_csv_budget) ... ok\ntest_syndicated_reports_do_not_inflate_corroboration (test_operations.OperationsTests.test_syndicated_reports_do_not_inflate_corroboration) ... ok\ntest_transport_rate_limit_then_success_and_malformed_response (test_operations.OperationsTests.test_transport_rate_limit_then_success_and_malformed_response) ... ok\ntest_unsupported_language_and_bad_gazetteer_are_explicit (test_operations.OperationsTests.test_unsupported_language_and_bad_gazetteer_are_explicit) ... ok\ntest_utf8_csv_and_geojson_geometry_roundtrip (test_operations.OperationsTests.test_utf8_csv_and_geojson_geometry_roundtrip) ... ok\n\n----------------------------------------------------------------------\nRan 28 tests in 1.778s\n\nOK\n"
+    },
+    {
+      "command": [
+        "<workspace>/operations-checks/install-env/bin/ree",
+        "run",
+        "--config",
+        "<workspace>/resilience-evidence-engine/configs/examples/usgs_historical_check.yml",
+        "--live",
+        "--output",
+        "<workspace>/operations-checks/final-smoke/live-attempt"
+      ],
+      "exit": 2,
+      "expected_exit": null,
+      "stdout": "",
+      "stderr": "ERROR: Run 20260909T134958_a6387fb56a failed (gaierror); checkpoint retained\nREE error: [Errno -3] Temporary failure in name resolution. Failure manifest: <workspace>/operations-checks/final-smoke/live-attempt/usgs-historical-check/20260909T134958_a6387fb56a/provenance/run_manifest.json\n"
+    }
+  ],
+  "installed_module": {
+    "version": "0.2.0",
+    "module": "<workspace>/operations-checks/install-env/lib/python3.12/site-packages/ree/__init__.py"
+  },
+  "tested_wheel_sha256": "516e7232ecaf810146ba97ab99d931d83196e99bf5755155284c51244ddb2358",
+  "venv_config": "home = /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin\ninclude-system-site-packages = true\nversion = 3.12.14\nexecutable = /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12\ncommand = /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python -m venv --system-site-packages <workspace>/operations-checks/install-env\n",
+  "operational_tests": {
+    "passed": 28,
+    "failed": 0,
+    "scope": "Current installed wheel; operational unittest checks and subtests; full pytest not executed"
+  },
+  "reference_result": {
+    "record_counts": {
+      "acquired": 4,
+      "claims": 5,
+      "document_duplicate_pairs": 0,
+      "documents": 4,
+      "event_link_proposals": 0,
+      "events": 4,
+      "filtered_records_or_claims": 0,
+      "pending_reviews": 12,
+      "privacy_suppressed_records": 0,
+      "repeated_identical_input_records": 0
+    },
+    "dataset_hash": "e6b1c6798f93548b0d4485c680de1641e6378b2e819a1dea0bf8dd273b80b1f1",
+    "comparison": {
+      "actual_version": "0.2.0",
+      "counts_match": true,
+      "dataset_matches": true,
+      "expected_version": "0.1.0",
+      "fixture_matches": true,
+      "passed": true,
+      "raw_dataset_matches": false,
+      "tolerance": "Only transformation ree_version normalized to reference version; all other values exact"
+    }
+  },
+  "offline_status": "PASS",
+  "actual_live_attempt": {
+    "exit": 2,
+    "status": "failed",
+    "errors": [],
+    "failure": {
+      "message": "[Errno -3] Temporary failure in name resolution",
+      "type": "gaierror"
+    }
+  },
+  "final_artifact_verification": {
+    "initial_smoke_wheel_sha256": "516e7232ecaf810146ba97ab99d931d83196e99bf5755155284c51244ddb2358",
+    "final_wheel_sha256": "ce7926bbb58a62c2e0a8cf463d592d618773ab6553d74840a0a14f2ee9649dfb",
+    "ree_code_resources_identical_to_full_smoke": true,
+    "difference_scope": "README distribution metadata clarification; REE code/resources unchanged",
+    "final_wheel_reinstalled": true,
+    "operational_tests_passed": 28,
+    "commands": [
+      {
+        "command": [
+          "<workspace>/operations-checks/install-env/bin/ree",
+          "--version"
+        ],
+        "exit": 0,
+        "stdout": "0.2.0\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "<workspace>/operations-checks/install-env/bin/ree",
+          "doctor"
+        ],
+        "exit": 0,
+        "stdout": "{\n  \"ree\": \"0.2.0\",\n  \"python\": \"3.12.14\",\n  \"sqlite\": \"3.53.1\",\n  \"sqlite_integrity\": \"ok\",\n  \"dependencies\": {\n    \"pydantic\": \"2.13.5\",\n    \"PyYAML\": \"6.0.3\"\n  },\n  \"optional_modules\": {\n    \"openpyxl\": true,\n    \"pyarrow\": false,\n    \"geopandas\": false\n  },\n  \"output_parent_writable\": true,\n  \"network_tested\": false,\n  \"paid_credentials_required\": false,\n  \"scope\": \"local checks only; live access and desktop GIS are separate gates\"\n}\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "<workspace>/operations-checks/install-env/bin/ree",
+          "reproduce",
+          "flagship",
+          "--output",
+          "<workspace>/operations-checks/packaged-reference"
+        ],
+        "exit": 0,
+        "stdout": "Reproduction: PASS\nSUCCEEDED: <workspace>/operations-checks/packaged-reference/flagship/20260909T135321_1c1edb849a\n{\n  \"acquired\": 4,\n  \"documents\": 4,\n  \"claims\": 5,\n  \"events\": 4,\n  \"pending_reviews\": 12,\n  \"filtered_records_or_claims\": 0,\n  \"privacy_suppressed_records\": 0,\n  \"repeated_identical_input_records\": 0,\n  \"document_duplicate_pairs\": 0,\n  \"event_link_proposals\": 0\n}\nReport: <workspace>/operations-checks/packaged-reference/flagship/20260909T135321_1c1edb849a/summary/run_report.html\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "<workspace>/operations-checks/install-env/bin/ree",
+          "validate",
+          "--run",
+          "<workspace>/operations-checks/packaged-reference/flagship/20260909T135321_1c1edb849a"
+        ],
+        "exit": 0,
+        "stdout": "PASS: run integrity\nReport: <workspace>/operations-checks/packaged-reference/flagship/20260909T135321_1c1edb849a/summary/run_report.html\n",
+        "stderr": ""
+      },
+      {
+        "command": [
+          "<workspace>/operations-checks/install-env/bin/python",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "<workspace>/resilience-evidence-engine/tests",
+          "-p",
+          "test_operations.py",
+          "-v"
+        ],
+        "exit": 0,
+        "stdout": "",
+        "stderr": "test_cache_corruption_is_not_silently_replaced (test_operations.OperationsTests.test_cache_corruption_is_not_silently_replaced) ... ok\ntest_cache_only_and_expired_never_call_transport (test_operations.OperationsTests.test_cache_only_and_expired_never_call_transport) ... ok\ntest_cache_refresh_and_clear_preserve_unrelated_files (test_operations.OperationsTests.test_cache_refresh_and_clear_preserve_unrelated_files) ... ok\ntest_cache_refuses_symlinks_and_unapproved_body (test_operations.OperationsTests.test_cache_refuses_symlinks_and_unapproved_body) ... ok\ntest_cache_reuses_original_provenance (test_operations.OperationsTests.test_cache_reuses_original_provenance) ... ok\ntest_claim_and_event_link_review_are_immutable (test_operations.OperationsTests.test_claim_and_event_link_review_are_immutable) ... ok\ntest_cli_comparison_cache_and_resume (test_operations.OperationsTests.test_cli_comparison_cache_and_resume) ... ok\ntest_configuration_examples_without_code_changes (test_operations.OperationsTests.test_configuration_examples_without_code_changes) ... ok\ntest_copy_detection_and_event_identity_are_separate (test_operations.OperationsTests.test_copy_detection_and_event_identity_are_separate) ... ok\ntest_corrupt_checkpoint_refused (test_operations.OperationsTests.test_corrupt_checkpoint_refused) ... ERROR: Run 20260909T135322_4e12a9a974 failed (FileNotFoundError); checkpoint retained\nok\ntest_discovery_contains_actionable_metadata (test_operations.OperationsTests.test_discovery_contains_actionable_metadata) ... ok\ntest_duplicate_provenance_references_only_its_document_pair (test_operations.OperationsTests.test_duplicate_provenance_references_only_its_document_pair) ... ok\ntest_event_geometry_and_link_corruption_detected (test_operations.OperationsTests.test_event_geometry_and_link_corruption_detected) ... ok\ntest_external_adapter_documented_contract (test_operations.OperationsTests.test_external_adapter_documented_contract) ... ok\ntest_frozen_values_and_only_declared_version_tolerance (test_operations.OperationsTests.test_frozen_values_and_only_declared_version_tolerance) ... ok\ntest_integrity_inventory_counts_and_config (test_operations.OperationsTests.test_integrity_inventory_counts_and_config) ... ok\ntest_live_timeout_and_explicit_resume (test_operations.OperationsTests.test_live_timeout_and_explicit_resume) ... ERROR: Run 20260909T135323_d019d80872 failed (TimeoutError); checkpoint retained\nWARNING: Run has 0 failed records and 1 notices; inspect manifest\nok\ntest_partial_replay_preserves_failures (test_operations.OperationsTests.test_partial_replay_preserves_failures) ... WARNING: Run has 1 failed records and 0 notices; inspect manifest\nWARNING: Run has 1 failed records and 0 notices; inspect manifest\nok\ntest_provider_updates_keep_distinct_location_versions (test_operations.OperationsTests.test_provider_updates_keep_distinct_location_versions) ... ok\ntest_public_checkpoint_and_exports_suppress_private_canary (test_operations.OperationsTests.test_public_checkpoint_and_exports_suppress_private_canary) ... ERROR: Run 20260909T135323_d24490c2c7 failed (OSError); checkpoint retained\nok\ntest_resume_downstream_failure_needs_no_original_input (test_operations.OperationsTests.test_resume_downstream_failure_needs_no_original_input) ... ERROR: Run 20260909T135323_841e87e077 failed (OSError); checkpoint retained\nok\ntest_resume_keeps_finished_inputs_and_original_config_base (test_operations.OperationsTests.test_resume_keeps_finished_inputs_and_original_config_base) ... ERROR: Run 20260909T135323_621362bb64 failed (FileNotFoundError); checkpoint retained\nok\ntest_review_context_preserves_location_time_uncertainty (test_operations.OperationsTests.test_review_context_preserves_location_time_uncertainty) ... ok\ntest_streaming_jsonl_and_csv_budget (test_operations.OperationsTests.test_streaming_jsonl_and_csv_budget) ... ok\ntest_syndicated_reports_do_not_inflate_corroboration (test_operations.OperationsTests.test_syndicated_reports_do_not_inflate_corroboration) ... ok\ntest_transport_rate_limit_then_success_and_malformed_response (test_operations.OperationsTests.test_transport_rate_limit_then_success_and_malformed_response) ... ok\ntest_unsupported_language_and_bad_gazetteer_are_explicit (test_operations.OperationsTests.test_unsupported_language_and_bad_gazetteer_are_explicit) ... ok\ntest_utf8_csv_and_geojson_geometry_roundtrip (test_operations.OperationsTests.test_utf8_csv_and_geojson_geometry_roundtrip) ... ok\n\n----------------------------------------------------------------------\nRan 28 tests in 1.861s\n\nOK\n"
+      }
+    ]
+  }
+}

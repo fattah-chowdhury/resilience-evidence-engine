@@ -1,0 +1,23 @@
+{
+  "date": "2026-09-09T13:46:58.444160+00:00",
+  "version": "0.2.0",
+  "modules": {
+    "pytest": false,
+    "ruff": false,
+    "geopandas": false,
+    "pyarrow": false,
+    "pip_audit": false,
+    "openpyxl": true,
+    "pydantic": true,
+    "yaml": true
+  },
+  "programs_available": {
+    "docker": false,
+    "R": false,
+    "qgis": false
+  },
+  "current_full_pytest": "UNVERIFIED",
+  "pristine_dependency_bootstrap": "BLOCKED: network approval cancelled before decision",
+  "online_advisory_results": "UNKNOWN: no current findings retrieved",
+  "hosted_ci": "UNVERIFIED: no hosted execution inspected"
+}

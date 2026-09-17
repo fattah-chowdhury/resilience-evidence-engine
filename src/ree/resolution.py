@@ -87,6 +87,14 @@ def resolve_time(text, reference=None):
 
 class LocalGazetteer:
     def __init__(self, rows):
+        if not isinstance(rows, list) or any(
+                not isinstance(r, dict) or not {"id", "name", "country", "level"} <= r.keys()
+                or any(not isinstance(r[k], str) or not r[k].strip()
+                       for k in ("id", "name", "country", "level"))
+                or not isinstance(r.get("aliases", []), list)
+                or any(not isinstance(a, str) or not a.strip() for a in r.get("aliases", []))
+                for r in rows):
+            raise ValueError("Gazetteer requires named, typed places and string aliases")
         self.rows = rows
         by_id = {r["id"]: r for r in rows}
         if len(by_id) != len(rows):
@@ -137,6 +145,8 @@ class LocalGazetteer:
 
 
 def extract(record, taxonomy):
+    if record.language not in {"en", "bn"}:
+        raise ValueError("unsupported_language: rule backend supports en/bn only")
     text = normalized(record.text)
     spans = []
     offset = 0

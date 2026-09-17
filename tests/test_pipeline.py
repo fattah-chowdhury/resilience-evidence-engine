@@ -30,7 +30,8 @@ def test_offline_demo_is_deterministic_and_retains_uncertainty(tmp_path, monkeyp
     args = (asset('source_registry.json'), config, processing_assets(config, tmp_path))
     a = process_records(records, *args)
     b = process_records(list(reversed(records)), *args)
-    assert dataset_digest(a[0]) == dataset_digest(b[0]) == asset('expected.json')['dataset_hash']
+    assert dataset_digest(a[0]) == dataset_digest(b[0])
+    assert dataset_digest(a[0], asset('expected.json')['ree_version']) == asset('expected.json')['dataset_hash']
     assert a[3]['claims'] == 5 and a[3]['events'] == 4 and a[3]['pending_reviews'] == 12
     flood = next(c for c in a[0]['claim'] if c['category'] == 'flood')
     assert flood['start_date'] is None

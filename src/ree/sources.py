@@ -11,6 +11,7 @@ from urllib.error import HTTPError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
+from ree import __version__
 from ree.models import Record
 
 
@@ -49,7 +50,7 @@ def discover(config, registry=None):
             reasons.append("storage_rights_unresolved")
         if source["authentication_required"]:
             reasons.append("credentials_or_provider_approval_required")
-        found.append({"id": source["id"], "relevant": relevant,
+        found.append({**source, "relevant": relevant,
                       "live_eligible": not reasons, "reasons": reasons})
     return found
 
@@ -74,7 +75,7 @@ def fetch_catalog(url, config, opener=None, resolver=None, pause=time.sleep):
     if not addresses or any(not ipaddress.ip_address(a[4][0]).is_global for a in addresses):
         raise ValueError("Source DNS did not resolve exclusively to public addresses")
     opener = opener or build_opener(NoRedirect())
-    request = Request(url, headers={"User-Agent": "ResilienceEvidenceEngine/0.1.0",
+    request = Request(url, headers={"User-Agent": f"ResilienceEvidenceEngine/{__version__}",
                                     "Accept": "application/geo+json,application/json"})
     for attempt in range(3):
         try:
@@ -166,3 +167,31 @@ class USGSAdapter:
     def provenance(self):
         return {"adapter": "usgs-catalog-v1", "request_url": self.request_url,
                 "scope": "USGS contributor only; bounded sample, no completeness assertion"}
+
+
+def collect_adapter(adapter, config, source):
+    """Explicit trusted Python extension boundary; no executable YAML imports."""
+    from ree.models import canonical
+    for method in ('discover', 'collect', 'normalize', 'validate', 'provenance'):
+        if not callable(getattr(adapter, method, None)):
+            raise TypeError(f'Adapter is missing {method}')
+    if source.get('raw_content_storage_allowed') is not True:
+        raise ValueError('Adapter must declare permitted storage')
+    if not adapter.discover(config).get('live_eligible'):
+        raise ValueError('Adapter is not eligible for this configuration')
+    records, errors = adapter.collect(config)
+    admitted = []
+    for index, record in enumerate(records):
+        if index >= config.collection.max_records:
+            raise ValueError('Adapter exceeded record budget')
+        record = Record.model_validate(record)
+        if record.source_id != source['id']:
+            raise ValueError('Adapter record source_id differs from registered source')
+        admitted.append(record)
+    if not isinstance(errors, list) or any(not isinstance(e, dict) for e in errors):
+        raise ValueError('Adapter errors must be a list of records')
+    canonical(errors)
+    if not isinstance(adapter.provenance(), dict):
+        raise TypeError('Adapter provenance must be a JSON object')
+    canonical(adapter.provenance())
+    return admitted, errors

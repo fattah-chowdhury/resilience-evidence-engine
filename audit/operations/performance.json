@@ -1,0 +1,16 @@
+{
+  "scope": "100 synthetic records; processing only; profiling overhead included",
+  "elapsed_seconds": 20.672272006999947,
+  "tracemalloc_peak_bytes": 44334736,
+  "summary": {
+    "documents": 100,
+    "claims": 100,
+    "events": 100,
+    "pending_reviews": 100,
+    "filtered_records_or_claims": 0,
+    "privacy_suppressed_records": 0,
+    "repeated_identical_input_records": 0,
+    "document_duplicate_pairs": 4950,
+    "event_link_proposals": 4950
+  }
+}

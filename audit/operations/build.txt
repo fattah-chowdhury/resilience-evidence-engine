@@ -1,0 +1,239 @@
+running bdist_wheel
+running build
+running build_py
+creating build/lib/ree
+copying src/ree/pipeline.py -> build/lib/ree
+copying src/ree/storage.py -> build/lib/ree
+copying src/ree/cli.py -> build/lib/ree
+copying src/ree/linkage.py -> build/lib/ree
+copying src/ree/sources.py -> build/lib/ree
+copying src/ree/config.py -> build/lib/ree
+copying src/ree/exporters.py -> build/lib/ree
+copying src/ree/__init__.py -> build/lib/ree
+copying src/ree/__main__.py -> build/lib/ree
+copying src/ree/models.py -> build/lib/ree
+copying src/ree/integrity.py -> build/lib/ree
+copying src/ree/review.py -> build/lib/ree
+copying src/ree/cache.py -> build/lib/ree
+copying src/ree/ingestion.py -> build/lib/ree
+copying src/ree/evidence.py -> build/lib/ree
+copying src/ree/resolution.py -> build/lib/ree
+copying src/ree/operations.py -> build/lib/ree
+running egg_info
+writing src/resilience_evidence_engine.egg-info/PKG-INFO
+writing dependency_links to src/resilience_evidence_engine.egg-info/dependency_links.txt
+writing entry points to src/resilience_evidence_engine.egg-info/entry_points.txt
+writing requirements to src/resilience_evidence_engine.egg-info/requires.txt
+writing top-level names to src/resilience_evidence_engine.egg-info/top_level.txt
+reading manifest file 'src/resilience_evidence_engine.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+adding license file 'LICENSE'
+writing manifest file 'src/resilience_evidence_engine.egg-info/SOURCES.txt'
+copying src/ree/schema.sql -> build/lib/ree
+creating build/lib/ree/assets
+copying src/ree/assets/expected.json -> build/lib/ree/assets
+copying src/ree/assets/source_registry.json -> build/lib/ree/assets
+copying src/ree/assets/gazetteer.json -> build/lib/ree/assets
+copying src/ree/assets/event_taxonomy.json -> build/lib/ree/assets
+copying src/ree/assets/evidence_rules.json -> build/lib/ree/assets
+copying src/ree/assets/frozen.json -> build/lib/ree/assets
+installing to build/bdist.linux-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.linux-x86_64/wheel
+creating build/bdist.linux-x86_64/wheel/ree
+copying build/lib/ree/pipeline.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/storage.py -> build/bdist.linux-x86_64/wheel/./ree
+creating build/bdist.linux-x86_64/wheel/ree/assets
+copying build/lib/ree/assets/expected.json -> build/bdist.linux-x86_64/wheel/./ree/assets
+copying build/lib/ree/assets/source_registry.json -> build/bdist.linux-x86_64/wheel/./ree/assets
+copying build/lib/ree/assets/gazetteer.json -> build/bdist.linux-x86_64/wheel/./ree/assets
+copying build/lib/ree/assets/event_taxonomy.json -> build/bdist.linux-x86_64/wheel/./ree/assets
+copying build/lib/ree/assets/evidence_rules.json -> build/bdist.linux-x86_64/wheel/./ree/assets
+copying build/lib/ree/assets/frozen.json -> build/bdist.linux-x86_64/wheel/./ree/assets
+copying build/lib/ree/cli.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/linkage.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/sources.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/config.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/exporters.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/__init__.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/__main__.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/models.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/integrity.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/schema.sql -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/review.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/cache.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/ingestion.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/evidence.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/resolution.py -> build/bdist.linux-x86_64/wheel/./ree
+copying build/lib/ree/operations.py -> build/bdist.linux-x86_64/wheel/./ree
+running install_egg_info
+Copying src/resilience_evidence_engine.egg-info to build/bdist.linux-x86_64/wheel/./resilience_evidence_engine-0.2.0-py3.12.egg-info
+running install_scripts
+creating build/bdist.linux-x86_64/wheel/resilience_evidence_engine-0.2.0.dist-info/WHEEL
+creating '<workspace>/operations-checks/build/.tmp-b_hjprw6/resilience_evidence_engine-0.2.0-py3-none-any.whl' and adding 'build/bdist.linux-x86_64/wheel' to it
+adding 'ree/__init__.py'
+adding 'ree/__main__.py'
+adding 'ree/cache.py'
+adding 'ree/cli.py'
+adding 'ree/config.py'
+adding 'ree/evidence.py'
+adding 'ree/exporters.py'
+adding 'ree/ingestion.py'
+adding 'ree/integrity.py'
+adding 'ree/linkage.py'
+adding 'ree/models.py'
+adding 'ree/operations.py'
+adding 'ree/pipeline.py'
+adding 'ree/resolution.py'
+adding 'ree/review.py'
+adding 'ree/schema.sql'
+adding 'ree/sources.py'
+adding 'ree/storage.py'
+adding 'ree/assets/event_taxonomy.json'
+adding 'ree/assets/evidence_rules.json'
+adding 'ree/assets/expected.json'
+adding 'ree/assets/frozen.json'
+adding 'ree/assets/gazetteer.json'
+adding 'ree/assets/source_registry.json'
+adding 'resilience_evidence_engine-0.2.0.dist-info/licenses/LICENSE'
+adding 'resilience_evidence_engine-0.2.0.dist-info/METADATA'
+adding 'resilience_evidence_engine-0.2.0.dist-info/WHEEL'
+adding 'resilience_evidence_engine-0.2.0.dist-info/entry_points.txt'
+adding 'resilience_evidence_engine-0.2.0.dist-info/top_level.txt'
+adding 'resilience_evidence_engine-0.2.0.dist-info/RECORD'
+removing build/bdist.linux-x86_64/wheel
+running sdist
+running egg_info
+writing src/resilience_evidence_engine.egg-info/PKG-INFO
+writing dependency_links to src/resilience_evidence_engine.egg-info/dependency_links.txt
+writing entry points to src/resilience_evidence_engine.egg-info/entry_points.txt
+writing requirements to src/resilience_evidence_engine.egg-info/requires.txt
+writing top-level names to src/resilience_evidence_engine.egg-info/top_level.txt
+reading manifest file 'src/resilience_evidence_engine.egg-info/SOURCES.txt'
+reading manifest template 'MANIFEST.in'
+adding license file 'LICENSE'
+writing manifest file 'src/resilience_evidence_engine.egg-info/SOURCES.txt'
+running check
+creating resilience_evidence_engine-0.2.0
+creating resilience_evidence_engine-0.2.0/.github/workflows
+creating resilience_evidence_engine-0.2.0/audit
+creating resilience_evidence_engine-0.2.0/audit/operations
+creating resilience_evidence_engine-0.2.0/configs/examples
+creating resilience_evidence_engine-0.2.0/docs
+creating resilience_evidence_engine-0.2.0/examples/custom_csv
+creating resilience_evidence_engine-0.2.0/examples/cyclone_monitoring
+creating resilience_evidence_engine-0.2.0/examples/external_adapter
+creating resilience_evidence_engine-0.2.0/examples/flood_monitoring
+creating resilience_evidence_engine-0.2.0/src/ree
+creating resilience_evidence_engine-0.2.0/src/ree/assets
+creating resilience_evidence_engine-0.2.0/src/resilience_evidence_engine.egg-info
+creating resilience_evidence_engine-0.2.0/tests
+copying files to resilience_evidence_engine-0.2.0...
+copying .env.example -> resilience_evidence_engine-0.2.0
+copying ARCHITECTURE.md -> resilience_evidence_engine-0.2.0
+copying CHANGELOG.md -> resilience_evidence_engine-0.2.0
+copying CITATION.cff -> resilience_evidence_engine-0.2.0
+copying CODE_OF_CONDUCT.md -> resilience_evidence_engine-0.2.0
+copying CONTRIBUTING.md -> resilience_evidence_engine-0.2.0
+copying DATA_MODEL.md -> resilience_evidence_engine-0.2.0
+copying DATA_SOURCES.md -> resilience_evidence_engine-0.2.0
+copying DECISION_LOG.md -> resilience_evidence_engine-0.2.0
+copying Dockerfile -> resilience_evidence_engine-0.2.0
+copying LICENSE -> resilience_evidence_engine-0.2.0
+copying MANIFEST.in -> resilience_evidence_engine-0.2.0
+copying Makefile -> resilience_evidence_engine-0.2.0
+copying OPERATIONAL_AUDIT.md -> resilience_evidence_engine-0.2.0
+copying PRODUCT_SPEC.md -> resilience_evidence_engine-0.2.0
+copying PROJECT_STATE.md -> resilience_evidence_engine-0.2.0
+copying QUALITY_SCORECARD.md -> resilience_evidence_engine-0.2.0
+copying README.md -> resilience_evidence_engine-0.2.0
+copying RELEASE_READINESS.md -> resilience_evidence_engine-0.2.0
+copying REPRODUCIBILITY_REPORT.md -> resilience_evidence_engine-0.2.0
+copying ROADMAP.md -> resilience_evidence_engine-0.2.0
+copying SECURITY.md -> resilience_evidence_engine-0.2.0
+copying SOURCE_STRATEGY.md -> resilience_evidence_engine-0.2.0
+copying TEST_REPORT.md -> resilience_evidence_engine-0.2.0
+copying docker-compose.yml -> resilience_evidence_engine-0.2.0
+copying pyproject.toml -> resilience_evidence_engine-0.2.0
+copying requirements-all.lock -> resilience_evidence_engine-0.2.0
+copying requirements-core.lock -> resilience_evidence_engine-0.2.0
+copying .github/workflows/ci.yml -> resilience_evidence_engine-0.2.0/.github/workflows
+copying audit/dependency-audit-status.json -> resilience_evidence_engine-0.2.0/audit
+copying audit/dependency-scope.json -> resilience_evidence_engine-0.2.0/audit
+copying audit/installation-smoke.json -> resilience_evidence_engine-0.2.0/audit
+copying audit/live-attempt-manifest.json -> resilience_evidence_engine-0.2.0/audit
+copying audit/package-check.json -> resilience_evidence_engine-0.2.0/audit
+copying audit/security-static-check.json -> resilience_evidence_engine-0.2.0/audit
+copying audit/test-results.json -> resilience_evidence_engine-0.2.0/audit
+copying audit/operations/build.txt -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/environment.json -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/installation-smoke.json -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/installed-operational-tests.txt -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/live-attempt-manifest.json -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/operational-tests.txt -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/performance-before.json -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/performance-before.txt -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/performance.json -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/performance.txt -> resilience_evidence_engine-0.2.0/audit/operations
+copying audit/operations/security-static-check.json -> resilience_evidence_engine-0.2.0/audit/operations
+copying configs/examples/bangladesh_excerpt.yml -> resilience_evidence_engine-0.2.0/configs/examples
+copying configs/examples/offline_demo.yml -> resilience_evidence_engine-0.2.0/configs/examples
+copying configs/examples/usgs_historical_check.yml -> resilience_evidence_engine-0.2.0/configs/examples
+copying configs/examples/usgs_live.yml -> resilience_evidence_engine-0.2.0/configs/examples
+copying docs/MAINTAINER_MANUAL.md -> resilience_evidence_engine-0.2.0/docs
+copying docs/USER_MANUAL.md -> resilience_evidence_engine-0.2.0/docs
+copying examples/custom_csv/README.md -> resilience_evidence_engine-0.2.0/examples/custom_csv
+copying examples/custom_csv/fixture.csv -> resilience_evidence_engine-0.2.0/examples/custom_csv
+copying examples/custom_csv/kenya.yml -> resilience_evidence_engine-0.2.0/examples/custom_csv
+copying examples/custom_csv/project.yml -> resilience_evidence_engine-0.2.0/examples/custom_csv
+copying examples/cyclone_monitoring/project.yml -> resilience_evidence_engine-0.2.0/examples/cyclone_monitoring
+copying examples/external_adapter/adapter.py -> resilience_evidence_engine-0.2.0/examples/external_adapter
+copying examples/external_adapter/run_example.py -> resilience_evidence_engine-0.2.0/examples/external_adapter
+copying examples/flood_monitoring/README.md -> resilience_evidence_engine-0.2.0/examples/flood_monitoring
+copying src/ree/__init__.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/__main__.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/cache.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/cli.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/config.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/evidence.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/exporters.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/ingestion.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/integrity.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/linkage.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/models.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/operations.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/pipeline.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/resolution.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/review.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/schema.sql -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/sources.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/storage.py -> resilience_evidence_engine-0.2.0/src/ree
+copying src/ree/assets/event_taxonomy.json -> resilience_evidence_engine-0.2.0/src/ree/assets
+copying src/ree/assets/evidence_rules.json -> resilience_evidence_engine-0.2.0/src/ree/assets
+copying src/ree/assets/expected.json -> resilience_evidence_engine-0.2.0/src/ree/assets
+copying src/ree/assets/frozen.json -> resilience_evidence_engine-0.2.0/src/ree/assets
+copying src/ree/assets/gazetteer.json -> resilience_evidence_engine-0.2.0/src/ree/assets
+copying src/ree/assets/source_registry.json -> resilience_evidence_engine-0.2.0/src/ree/assets
+copying src/resilience_evidence_engine.egg-info/PKG-INFO -> resilience_evidence_engine-0.2.0/src/resilience_evidence_engine.egg-info
+copying src/resilience_evidence_engine.egg-info/SOURCES.txt -> resilience_evidence_engine-0.2.0/src/resilience_evidence_engine.egg-info
+copying src/resilience_evidence_engine.egg-info/dependency_links.txt -> resilience_evidence_engine-0.2.0/src/resilience_evidence_engine.egg-info
+copying src/resilience_evidence_engine.egg-info/entry_points.txt -> resilience_evidence_engine-0.2.0/src/resilience_evidence_engine.egg-info
+copying src/resilience_evidence_engine.egg-info/requires.txt -> resilience_evidence_engine-0.2.0/src/resilience_evidence_engine.egg-info
+copying src/resilience_evidence_engine.egg-info/top_level.txt -> resilience_evidence_engine-0.2.0/src/resilience_evidence_engine.egg-info
+copying tests/test_foundation.py -> resilience_evidence_engine-0.2.0/tests
+copying tests/test_gis_and_links.py -> resilience_evidence_engine-0.2.0/tests
+copying tests/test_ingestion.py -> resilience_evidence_engine-0.2.0/tests
+copying tests/test_operations.py -> resilience_evidence_engine-0.2.0/tests
+copying tests/test_pipeline.py -> resilience_evidence_engine-0.2.0/tests
+copying tests/test_resolution.py -> resilience_evidence_engine-0.2.0/tests
+copying tests/test_sources.py -> resilience_evidence_engine-0.2.0/tests
+Writing resilience_evidence_engine-0.2.0/setup.cfg
+Creating tar archive
+removing 'resilience_evidence_engine-0.2.0' (and everything under it)
+warning: no files found matching '*.yml' under directory 'src/ree/assets'
+warning: no files found matching '*.md' under directory 'src/ree/assets'
+warning: no files found matching '*.md' under directory 'audit'
+warning: no files found matching '*.yml' under directory 'src/ree/assets'
+warning: no files found matching '*.md' under directory 'src/ree/assets'
+warning: no files found matching '*.md' under directory 'audit'

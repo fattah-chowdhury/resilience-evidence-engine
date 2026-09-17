@@ -1,0 +1,93 @@
+{
+  "checkpoint_hash": "3033c8f4cc19a7ecd88a7d65274ddabf1bf5a3559190d1f59f566333dc16cd4c",
+  "code_commit": null,
+  "code_dirty": null,
+  "collection_provenance": {
+    "adapter": "usgs-catalog-v1",
+    "request_url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2024-01-01&endtime=2024-01-02T23%3A59%3A59.999&eventtype=earthquake&contributor=us&minmagnitude=7.0&orderby=time-asc&limit=6",
+    "scope": "USGS contributor only; bounded sample, no completeness assertion"
+  },
+  "completed_at": "2026-09-09T13:49:58.135355+00:00",
+  "config": {
+    "collection": {
+      "max_bytes": 10000000,
+      "max_records": 5,
+      "min_magnitude": 7.0,
+      "public_sources": true,
+      "sources": [
+        "usgs_catalog"
+      ],
+      "timeout_seconds": 15
+    },
+    "export_policy": "public",
+    "exports": [
+      "csv",
+      "json",
+      "geojson"
+    ],
+    "inputs": [],
+    "languages": [
+      "en"
+    ],
+    "mode": "live",
+    "output_dir": "outputs",
+    "processing": {
+      "evidence_rules": null,
+      "gazetteer": null,
+      "human_review": true,
+      "link_days": 3,
+      "link_km": 30.0,
+      "llm_enabled": false,
+      "taxonomy": null
+    },
+    "project": {
+      "name": "usgs-historical-check"
+    },
+    "schema_version": 1,
+    "study_area": {
+      "admin_units": [],
+      "bbox": null,
+      "country": "global"
+    },
+    "time": {
+      "end": "2024-01-02",
+      "start": "2024-01-01"
+    },
+    "topics": [
+      "earthquake"
+    ]
+  },
+  "config_hash": "6d291930a4b3c78702a4d47bcd050fa58b5fe245d46d67dd3b1d36d55e7b9dd7",
+  "dependencies": {
+    "PyYAML": "6.0.3",
+    "geopandas": null,
+    "openpyxl": "3.1.5",
+    "pyarrow": null,
+    "pydantic": "2.13.5",
+    "pyproj": null,
+    "shapely": null
+  },
+  "enabled_adapters": [
+    "usgs-catalog-v1"
+  ],
+  "error": {
+    "message": "[Errno -3] Temporary failure in name resolution",
+    "type": "gaierror"
+  },
+  "export_files": {
+    "provenance/acquisition_checkpoint.json": "d09a543bb9dd703f7d184de7b6bd5d2bb3606d8bcc4540d9653a10ac7c548eeb"
+  },
+  "failed_records": [],
+  "input_files": [],
+  "live_requested": true,
+  "mode": "live",
+  "package_code_hash": "cada715149e8b852a6e6f181e28d8ef993b6f350477585a8f519cf23d2e499f7",
+  "parent_run": null,
+  "python": "3.12.14",
+  "record_counts": {},
+  "ree_version": "0.2.0",
+  "run_id": "20260909T134958_a6387fb56a",
+  "started_at": "2026-09-09T13:49:58.127497+00:00",
+  "status": "failed",
+  "warnings": []
+}

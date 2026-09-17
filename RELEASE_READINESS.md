@@ -1,60 +1,64 @@
-# Release readiness — REE 0.1.0
+# REE release readiness — 0.2.0
 
-2026-09-07 · **PASS WITH LIMITATIONS for an experimental offline release checkpoint.**
-**Full MASTER PROMPT 1 acceptance is not complete.** This is not a production-ready or publicly published v1.0.
+2026-09-09 · **HOLD for a fully verified public release.** An experimental offline candidate is packaged.
+MASTER PROMPT 2's operational work has been performed in the available environment, but all acceptance
+gates have not passed. MASTER PROMPT 1's outstanding external gates are carried forward.
 
-## Reviewable deliverable
-
-The continued source repository, installable wheel/source distribution, complete user and maintainer
-manuals, test/audit evidence and one verified frozen example are packaged together. No private source,
-paid AI service or API key is required for the demo. The earlier Stage 0–1 archive remains historical.
-
-| Gate | Result | Evidence / unresolved work |
+| Required gate | Result | Exact scope |
 | --- | --- | --- |
-| Installation | PASS | Fresh venv, six pinned core dependencies, installed current wheel outside source tree |
-| Unit/integration/regression tests | PASS | 93 passed; all runtime extras exercised; Ruff clean |
-| Offline demo | PASS WITH LIMITATIONS | 4 real-source curated records, 5 claims, 4 events; limited reference scope |
-| Frozen reproduction | PASS | Retained fixture/version/counts/dataset digest match installed wheel |
-| Review/provenance/privacy | PASS WITH LIMITATIONS | Immutable decisions, field hashes, canary suppression; no automatic anonymization |
-| Python GIS interoperability | PASS | Actual GPKG/GeoJSON/Parquet readers, CRS/null/empty handling |
-| QGIS and R interoperability | BLOCKED | Applications unavailable; actual imports must still be executed |
-| Real live collection | BLOCKED | Bounded historical USGS query failed DNS; mocked transport passes separately |
-| Dependency advisory audit | BLOCKED | Network approval cancelled; inventory saved, advisory findings unknown |
-| Data-rights audit | PASS WITH LIMITATIONS | Narrow attributed facts/short excerpts reviewed; excludes images/logos/third-party data |
-| Documentation | PASS WITH LIMITATIONS | Isolated Linux wheel walkthrough; other OS commands unexecuted |
-| Packaging/local repository | PASS | Source/wheel, resource checks, local Git checkpoint and archive checksums |
-| Docker/hosted CI/publication | PASS WITH LIMITATIONS | Files prepared; Docker and remote CI unexecuted; no remote/PyPI/DOI publication |
+| INSTALLATION | PARTIAL / BLOCKED | Current wheel installs/runs outside source with preinstalled system dependencies. Pristine dependency bootstrap was cancelled |
+| CLI | PASS | Installed entry point, help, demo, reproduce and core workflow executed |
+| DEMO | PASS | 4 documents, 5 claims, 4 events, 12 reviews; no user data, keys or network |
+| FROZEN REPRODUCTION | PASS WITH DECLARED TOLERANCE | Original reference inputs/expectations unchanged; only provenance software-version string normalized for comparison |
+| UNIT TESTS | PARTIAL / UNVERIFIED | 28 current unittest operational checks pass; current full pytest suite unavailable |
+| INTEGRATION TESTS | PASS WITH LIMITS | Core recovery/cache/config/review/adapter paths pass; real live and optional readers unverified |
+| DATA INTEGRITY | PASS | File inventory, database/schema/counts, taxonomy/links, geometry and hashes |
+| PROVENANCE | PASS WITH LIMITS | Current input/config/rule/field hashes and child lineage; unsigned manifests |
+| EXPORTS | PARTIAL / UNVERIFIED | Current CSV/JSON/point GeoJSON checks pass; current Parquet/GPKG/QGIS/R not executed |
+| DOCUMENTATION | PASS WITH LIMITS | Core walkthrough checked; Windows/macOS and optional/environment-blocked commands labeled |
+| SECRET SCAN | PASS WITH LIMITS | Current distributable source static patterns and local-path checks; no claim of exhaustive forensic scanning |
+| LICENSING REVIEW | PASS WITH LIMITS | Narrow USGS/NASA facts/excerpt, original URLs, synthetic MIT fixtures; ReliefWeb disabled |
+| Dependency advisories | BLOCKED | Online pip-audit did not return findings after network approval cancellation |
+| Ruff | UNVERIFIED | Missing in current runtime; source syntax and whitespace checks pass |
+| Actual live USGS | BLOCKED | DNS resolution failure in engine environment; no substitute records presented as live |
+| Docker / hosted CI | UNVERIFIED | Configuration prepared; runtimes/hosted connection not exercised |
+| External publication / DOI | NOT PERFORMED | No public publication or DOI action by this operations run |
 
-## Material limitations
+## Practical installation
 
-This is a bounded deterministic evidence organizer, not a validated risk model or warning service.
-The curated sample is not a raw API capture or independent NLP benchmark. English/Bangla support is
-limited keywords/digits. The tiny gazetteer has no authoritative administrative boundaries. Only the
-USGS adapter collects live data; query truncation is reported, not exhaustively paginated. Matching is
-quadratic with a maximum 1,000 records. Generic Excel uses its active sheet; GPKG uses its first layer.
+Extract the archive, open a terminal in resilience-evidence-engine, and run with Python 3.11+:
 
-Whole-record suppression is declaration-driven. Private content and config paths need review before
-sharing. No automatic PII classifier, aggregation/masking, LLM execution, remote geocoder, installable
-plugin discovery or database migration framework is claimed. Manifests are not signed. Dependency pins
-are tested versions, not a universal/hash-locked supply-chain guarantee. Code and external data licenses
-remain separate. Personal author metadata and the public repository destination are not established.
+```bash
+python -m venv .venv
+```
 
-## Exact next acceptance actions
+Activate: macOS/Linux `source .venv/bin/activate`; Windows PowerShell `.venv\Scripts\Activate.ps1`.
+Then:
 
-1. In a permitted network environment, run:
-   `ree run --config configs/examples/usgs_historical_check.yml --live`.
-   Confirm real USGS records/provenance, then validate that run. Do not replace the frozen sample automatically.
-2. With advisory-service access, run:
-   `python -m pip_audit -r requirements-all.lock --no-deps --disable-pip --strict`.
-   Inspect results and update only affected dependencies/tests; do not ignore findings to pass a gate.
-3. Open verified GeoJSON or a GPKG export in actual QGIS and R/sf. Check four events, EPSG:4326,
-   two non-null point representations and the Noto representational flag. Instructions are in the manual.
-4. Execute Docker/hosted CI and other target environments before claiming their support was verified.
-   Public GitHub/PyPI publication additionally needs the owner's actual identity/destination and authorization.
+```bash
+python -m pip install .
+ree demo
+ree reproduce flagship
+ree init my-project
+ree run --config my-project/project.yml
+```
 
-## MASTER PROMPT 2 handoff
+If dependencies already exist, the supplied wheel can be installed without network using
+`python -m pip install --no-index --no-deps artifacts/resilience_evidence_engine-0.2.0-py3-none-any.whl`
+from the extracted release root. This does not install missing dependencies. No registry publication is
+required; use the supplied source or wheel. Complete instructions: docs/USER_MANUAL.md.
 
-**Ready as a concrete continuation/audit checkpoint, with blockers carried forward. Not ready for a
-claim that MASTER PROMPT 1 passed every acceptance gate.** Begin with this document and PROJECT_STATE.md;
-preserve completed code, frozen data, decisions and existing runs. The remaining work is verification
-and targeted hardening in available environments, not restarting architecture or rebuilding the project.
+## Actions needed before upgrading this status
+
+1. In a permitted network environment, install into a pristine venv, then run the README commands.
+2. Install development/runtime extras and execute `python -m pytest -q` and `python -m ruff check src tests`.
+   Historical 93-test results are not a substitute for this current-code gate.
+3. Run `ree run --config configs/examples/usgs_historical_check.yml --live`; inspect actual source
+   records, request provenance, review queues and exports. Do not replace the frozen fixture.
+4. Execute the Parquet/GPKG tests and import the exports with actual QGIS and R/sf.
+5. Run dependency advisories, Docker and hosted CI. Review actual author/repository/release metadata
+   before any public release or DOI registration. No invented author or DOI is included.
+
+Known scope limits: tiny gazetteer; English/Bangla heuristics; bounded quadratic matching/proposal work;
+no complete flood/cyclone live collector; no automatic PII anonymization; source-batch rather than
+mid-processing resume; version-strict saved-run mutation; unsigned manifests and platform-specific pins.

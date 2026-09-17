@@ -1,4 +1,42 @@
-# Verification report
+# Verification report — v0.2.0 operations
+
+Executed 2026-09-09, Linux/Python 3.12. Current machine-readable evidence: audit/operations/.
+
+| Current check | Result |
+| --- | --- |
+| Operational unittest suite | PASS — 28 checks, 0 failures; source and installed-wheel runs; subtests included |
+| Installed-wheel CLI | PASS — real entry point outside source tree, PYTHONPATH unset, installed module verified |
+| Installation scope | PARTIAL — local wheel installed with existing system dependencies; pristine bootstrap blocked |
+| Core walkthrough | PASS — help/version/doctor/schema/demo/init/run/validate/discover/review/report/export/resume/compare/cache |
+| Four configurations | PASS — frozen Bangladesh flood excerpt, synthetic cyclone, mapped CSV, Kenya; separate inputs/configs |
+| External adapter | PASS — explicit synthetic example, no network; not a live acceptance result |
+| Frozen reproduction | PASS — original fixture/counts and semantic digest with software-version-only tolerance |
+| Recovery/integrity/review | PASS — failed and partial runs, checkpoint/file tampering, schema/counts, source updates, immutable decisions |
+| CSV/JSON/point GeoJSON | PASS — actual core round trips and geometry/count checks |
+| Performance profile | MEASURED — 100 synthetic records; peak traced allocation 174,342,763 → 44,334,736 bytes after pair-provenance fix |
+| New actual USGS attempt | BLOCKED — exit 2, DNS failure preserved in audit/operations/live-attempt-manifest.json |
+| Current full pytest / Ruff / optional GIS | UNVERIFIED — packages unavailable after network approval cancellation |
+| QGIS / R / Docker / hosted CI | UNVERIFIED — environments/hosted run not available |
+| Online advisories | BLOCKED — no findings returned; vulnerability status unknown |
+
+No current 93-test/full-suite pass or line-coverage percentage is claimed. The performance figures
+include cProfile/tracemalloc overhead, exclude I/O and are not a scalability or accuracy benchmark.
+The reference contains no duplicate pairs, so the pair-provenance repair does not alter its evidence.
+
+Run current core operational checks after installing REE:
+
+```bash
+python -m unittest discover -s tests -p test_operations.py -v
+ree reproduce flagship
+```
+
+Use the development/extras commands below for the remaining full-suite gate. The following report
+is retained as historical v0.1.0 evidence; its installations, versions, 93 tests and GIS results do
+not certify the current restored implementation.
+
+---
+
+# Historical v0.1.0 verification report
 
 Executed 2026-09-07, Linux x86_64, Python 3.12.13. Machine-readable evidence is in audit/.
 

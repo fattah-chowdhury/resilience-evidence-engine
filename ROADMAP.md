@@ -34,3 +34,10 @@ resolution, adapter registration, stable plugin/public API contracts, migration/
 scale-appropriate matching. The version progression (0.1 foundation, 0.3 discovery, 0.5 evidence,
 0.8 research tooling, 1.0 stable contracts) remains a roadmap, not an assertion that all versions shipped.
 No automatic publication or admission/funding outcome is promised.
+
+
+## v0.2.0 operations update — 2026-09-09
+
+Acquisition resume, public caching, comparison and explicit source-adapter registration are now implemented.
+See OPERATIONAL_AUDIT.md for capability status. Next priorities remain current full-suite/clean-install
+verification, real USGS connectivity, desktop GIS/R checks and stronger language/gazetteer coverage.

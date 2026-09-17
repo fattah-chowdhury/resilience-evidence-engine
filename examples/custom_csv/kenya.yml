@@ -1,0 +1,20 @@
+project:
+  name: synthetic-kenya
+mode: local
+topics:
+- flood
+study_area:
+  country: Kenya
+inputs:
+- path: fixture.csv
+  columns:
+    id: source_record_id
+    report: text
+    place: location_text
+    date: date_text
+    nation: country
+    hazard: category
+  sensitive: false
+  redistribution_allowed: true
+  license: MIT; synthetic REE fixture
+export_policy: public

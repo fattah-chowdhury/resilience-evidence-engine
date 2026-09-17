@@ -1,0 +1,20 @@
+{
+  "date": "2026-09-09T13:53:20.261812+00:00",
+  "version": "0.2.0",
+  "wheel_sha256": "ce7926bbb58a62c2e0a8cf463d592d618773ab6553d74840a0a14f2ee9649dfb",
+  "sdist_sha256": "3e98a08f6699956b679d589b2be9c057618a92e9a90c68cc27f40c2ed46bf5f9",
+  "wheel_required_resources": "PASS",
+  "sdist_docs_examples_tests": "PASS",
+  "wheel_zip_integrity": "PASS",
+  "reference_files_unchanged_from_f25280b": {
+    "src/ree/assets/frozen.json": "ec1f6478cb066b3e7d8ea39319ffdaa1804fe3a9730a382bdf90b4d26d9005f1",
+    "src/ree/assets/expected.json": "d1e8949bd98832ef1a6acb4de3e2792fe8e94aeb645178721602501be851dc4c"
+  },
+  "installed_operational_tests": {
+    "passed": 28,
+    "failed": 0
+  },
+  "fresh_dependencies": "NOT VERIFIED",
+  "live_status": "BLOCKED: DNS failure",
+  "audit_scope_note": "The outer source folder contains final audit evidence; build artifacts are installation snapshots."
+}

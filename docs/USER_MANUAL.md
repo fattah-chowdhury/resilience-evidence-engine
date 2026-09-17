@@ -1,6 +1,6 @@
 # REE user manual
 
-Version 0.1.0 · verified build date 2026-09-07
+Version 0.2.0 · operational audit 2026-09-09
 
 REE is software for organizing source evidence. Documents can contain several claims; claims may
 support one candidate event. A map point, a grade or a human decision does not establish ground truth.
@@ -9,7 +9,9 @@ No source upload is required to try the software.
 ## 1. Installation
 
 You need Python 3.11 or later and a terminal. Python 3.12.13 on Linux was the executed release test;
-Windows/macOS and Python 3.11 have not been executed here. Extract the release ZIP. The source folder
+Windows/macOS and Python 3.11 have not been executed here. The 0.2.0 wheel was tested outside
+the source tree with preinstalled runtime dependencies; a completely fresh dependency installation
+was blocked by network approval cancellation. See RELEASE_READINESS.md for the exact test scope. Extract the release ZIP. The source folder
 is `resilience-evidence-engine`; open your terminal there.
 
 ```bash
@@ -43,13 +45,14 @@ ree doctor
 The distribution also includes a wheel under `artifacts/`. From the extracted release root:
 
 ```bash
-python -m pip install artifacts/resilience_evidence_engine-0.1.0-py3-none-any.whl
+python -m pip install artifacts/resilience_evidence_engine-0.2.0-py3-none-any.whl
 ```
 
-Choose either source or wheel installation. Do not install by package name from PyPI: REE has not
-been published there. Dependencies usually need internet the first time. For a repeatable tested
-Linux/Python 3.12 core environment, install `requirements-core.lock` before installing the source or
-wheel with `--no-deps`. Other platforms may need different compatible wheels.
+Choose either source or wheel installation. Use the supplied artifacts; this operations run did not
+publish a PyPI package. Dependencies usually need internet the first time. The supplied
+`requirements-core.lock` records the earlier Linux/Python 3.12 installation: install it before the
+source or wheel with `--no-deps` when those pins suit your environment. A fresh bootstrap of those
+dependencies was not verified for 0.2.0. Other platforms may need different compatible wheels.
 
 Optional readers and exporters are installed from the source folder:
 
@@ -72,7 +75,9 @@ ree run --config my-project/project.yml
 
 `demo` writes `outputs/flagship/<run_id>/` beneath the current directory and prints the exact path.
 Open `summary/run_report.html` in that run. `reproduce` makes another run and compares the frozen
-fixture, software version, table counts and canonical dataset digest with the saved reference.
+fixture, table counts and canonical dataset digest with the saved reference. The sole version
+compatibility tolerance is the ree_version string inside field provenance. Raw current-version
+provenance remains intact and its unadjusted hash is also reported.
 
 `init` creates a ready-to-run offline `project.yml`. It refuses to overwrite an existing configuration.
 For this initialized project, relative outputs are beneath the configuration's folder:
@@ -195,7 +200,7 @@ unknown places get no fabricated coordinates. The local resolver checks hierarch
 Dates support exact ISO dates/timestamps, months, ranges, relative weekdays/yesterday/last week and
 unknown. Relative expressions require a valid publication anchor; publication is not silently used
 as occurrence. Conflicting or invalid dates remain unresolved. Bangla digits and a small keyword
-vocabulary are supported; there is no benchmarked multilingual NER or general temporal parser.
+vocabulary are supported. The current rule backend explicitly refuses other languages; there is no benchmarked multilingual NER or general temporal parser.
 
 Extraction uses deterministic keywords and structured fields. Heuristic confidence values are not
 probabilities. Negated claims are excluded; hypothetical/forecast claims require review. Quantity
@@ -224,6 +229,10 @@ Replace `RUN` below with the exact run directory printed by REE. Do not type the
 ```bash
 ree review RUN
 ```
+
+Open `RUN/review/context.html` first: it shows original text, source URL, date interpretation,
+candidate places, parent geography and uncalibrated (null) confidence. Event-link pairs with
+both events and their claims are in `RUN/review/event_link_context.json`.
 
 Copy `RUN/review/decisions_template.csv` **outside the run**, for example to `my-decisions.csv`.
 Do not edit generated files in place: their hashes are part of integrity validation.
@@ -332,8 +341,8 @@ The reference digest excludes run IDs, wall-clock timestamps and incidental SQLi
 includes stable sorted normalized tables and field transformation records. Tests separately check GIS
 geometry/counts; reproduction does not promise byte-identical HTML, GeoPackage, Parquet or SQLite files.
 
-`ree validate --run RUN` checks output-file hashes, database relationships, geometry/date invariants
-and provenance targets/value hashes. Manifests are not cryptographically signed; integrity checks
+`ree validate --run RUN` checks the complete file inventory, schema, output hashes, database
+relationships, counts, taxonomy, event geometry and links, config/rule fingerprints and field provenance. Manifests are not cryptographically signed; integrity checks
 are for accidental changes, not a hostile party able to rewrite both data and manifest.
 
 Replay captures allowed input records, config and rule assets. Field transformations link target keys
@@ -364,7 +373,10 @@ Read SOURCE_STRATEGY.md before broadening a source or redistributing outputs.
 
 Change JSON/YAML gazetteer, taxonomy and rule files through configuration; see MAINTAINER_MANUAL.md
 for their schemas. SourceAdapter and separate processing/export modules provide internal interfaces.
-Additional Python adapters, NLP models or exporters currently require an explicit code integration
+Source adapters can be registered through the public `run(..., adapters=..., source_registry=...)`
+Python interface without editing core code. Run `python examples/external_adapter/run_example.py`
+from the repository root to test the complete synthetic adapter. That demonstration uses no network
+and is not a live-source acceptance test. NLP/exporter extensions still require explicit integration
 and tests. Third-party entry-point packages, remote geocoders and LLM execution are future work;
 installing an arbitrary `ree-source-*` package does not automatically activate it.
 
@@ -386,3 +398,90 @@ installing an arbitrary `ree-source-*` package does not automatically activate i
 Exit codes: 0 success, 2 fatal/configuration error, 3 partial run, 4 frozen reference mismatch.
 No warning service, event completeness, independent scientific validation or funding/admission outcome
 is promised. The software can organize evidence; users remain responsible for interpreting it.
+
+
+## 13. Recovery, caching and comparison (v0.2.0)
+
+Copy the printed run path in place of RUN. A resumed run always receives a new child directory:
+
+```bash
+ree run --resume RUN
+```
+
+For unfinished network acquisition, an explicit flag is still required:
+
+```bash
+ree run --resume RUN --live
+```
+
+Completed local files and source batches are saved in a hashed acquisition checkpoint. If a later
+input or exporter fails, recovery reuses those records without requiring the completed input files.
+Unfinished relative inputs are resolved from the original config directory. Processing restarts from
+the acquisition checkpoint; this is not per-record or mid-NLP continuation. Preflight failures before
+a checkpoint cannot resume. Complete/partial runs replay their saved admitted records. Partial-run
+failures stay visible: replay does not repair malformed records. Fix input and make a fresh run to
+correct them. Interrupted writes use atomic JSON replacement; a hard process kill that leaves an
+untracked partial output is rejected by integrity validation and may need manual recovery.
+
+Resume/review/export requires the run's original software version. Keep the old v0.1.0 environment
+for modifying its runs; v0.2.0 can validate them and reproduce the unchanged flagship reference.
+
+Optional public USGS caching:
+
+```bash
+ree run --config configs/examples/usgs_historical_check.yml --live --cache-dir ree-cache
+ree cache status --cache-dir ree-cache
+ree run --config configs/examples/usgs_historical_check.yml --live --cache-dir ree-cache --cache-mode only
+ree cache clear --cache-dir ree-cache
+```
+
+The default cache TTL is one hour. `reuse` uses a fresh hit; `refresh` requests new content; `only`
+refuses network fallback and fails without a fresh hit. The CLI has no custom TTL flag. Retrieved
+URL, original retrieval time and body hash remain in provenance. Cache corruption fails visibly;
+inspect or clear it. Clear deletes only named REE catalog entries, not runs or unrelated files.
+Cache is opt-in and never stores local private inputs. Cache-only use requires a previously successful
+permitted acquisition. It is not the permanent frozen archive: preserve a completed run for that.
+
+```bash
+ree compare RUN_A RUN_B
+ree --log-level INFO demo
+ree --log-level DEBUG run --config my-project/project.yml
+```
+
+Comparison validates both runs and reports count differences, source additions/removals, grade and
+location distributions, and collection outcomes. Use complete saved runs. It does not establish
+live-source completeness. Logging supports DEBUG, INFO, WARNING and ERROR; run timing and reasons
+are also recorded in manifests/logs. Keep private run files private when collecting diagnostics.
+
+## 14. Examples and paths for different users
+
+| User | First path |
+| --- | --- |
+| Graduate student | Install → demo → read report → reproduce → init a project |
+| GIS researcher | Install gis/columnar extras → export a run → inspect CRS, null geometry and precision |
+| NGO analyst | Run the shared synthetic CSV example → inspect contextual review → apply justified decisions |
+| Adapter developer | Read MAINTAINER_MANUAL.md → run external_adapter/run_example.py → add contract tests |
+
+The flood example reuses `configs/examples/bangladesh_excerpt.yml`. Additional configuration-only
+examples are `examples/cyclone_monitoring/project.yml`, `examples/custom_csv/project.yml` and
+`examples/custom_csv/kenya.yml`. They share one explicitly synthetic CSV; no real corpus upload is needed.
+The Kenya example deliberately leaves Mombasa unresolved rather than inventing a point.
+
+## 15. Performance and current verification limits
+
+Default budget is 100 records; maximum is 1,000. Text matching and event proposals remain quadratic.
+CSV/JSONL use streaming reads; Parquet reads batches. JSON, XML, GeoPackage and normalized processing
+still use bounded in-memory objects. A 100-record synthetic stress profile found avoidable repeated
+provenance: duplicate decisions now reference just their two contributing documents. This lowered
+traced peak allocation from about 174 MB to 44 MB in that test. Profiling includes overhead and
+is not a production throughput or large-data guarantee. Keep studies small and split large corpora.
+
+The current dependency-free test runner (after core installation) is:
+
+```bash
+python -m unittest discover -s tests -p test_operations.py -v
+```
+
+It uses Python's standard unittest library. The full existing pytest suite, Ruff and optional-format
+checks are separate gates; do not infer their current results from the operational test count.
+See OPERATIONAL_AUDIT.md, REPRODUCIBILITY_REPORT.md and RELEASE_READINESS.md before publishing results.

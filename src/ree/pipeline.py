@@ -1,6 +1,7 @@
 """Run acquisition, evidence processing and export with explicit failure manifests."""
 
 import json
+import logging
 import platform
 import subprocess
 import uuid
@@ -10,6 +11,7 @@ from hashlib import sha256
 from importlib.metadata import PackageNotFoundError, version
 from importlib.resources import files
 from pathlib import Path
+from time import perf_counter
 
 import yaml
 
@@ -21,7 +23,7 @@ from ree.ingestion import ingest_file
 from ree.linkage import group_claims
 from ree.models import Record, canonical, digest
 from ree.resolution import LocalGazetteer, extract, extract_quantities, resolve_time
-from ree.sources import USGSAdapter, asset
+from ree.sources import USGSAdapter, asset, collect_adapter
 from ree.storage import PRIMARY_KEYS, TABLES, save_tables, stable_id
 
 
@@ -176,6 +178,13 @@ def process_records(records, registry, config, bundle, decisions=None, link_deci
                 filtered += 1
                 continue
             places = gazetteer.resolve(record, candidate["statement"])
+            for place in places:
+                proposed = {"name": place["name"], "precision": place.get("level", "unknown"),
+                            "geometry_json": canonical(place["geometry"]) if place.get("geometry") else None,
+                            "representational": int(place.get("representational", False))}
+                old = locations.get(place["id"])
+                if old and any(old[k] != v for k, v in proposed.items()):
+                    place["id"] = stable_id("place-revision", place["id"], digest(proposed))
             choices = [d.get("location_id") for d in decisions.values()
                        if d["claim_id"] == claim_id and d.get("location_id") and d["decision"] == "accepted"]
             if len(set(choices)) > 1:
@@ -310,6 +319,11 @@ def process_records(records, registry, config, bundle, decisions=None, link_deci
                 inputs = [record_hashes[doc_id]]
             elif table == "document":
                 inputs = [row["content_hash"]]
+            elif table == "document_duplicate":
+                # A duplicate decision depends on its two documents, not every
+                # document in the batch. Avoid quadratic rows times batch-size payloads.
+                inputs = [record_hashes[row["left_document_id"]],
+                          record_hashes[row["right_document_id"]]]
             else:
                 inputs = all_hashes
             for field in row:
@@ -329,12 +343,18 @@ def process_records(records, registry, config, bundle, decisions=None, link_deci
     return tables, events, proposals, summary, failed, notices
 
 
-def dataset_digest(tables):
+def dataset_digest(tables, provenance_version=None):
+    if provenance_version is not None:
+        tables = {**tables, "provenance": [dict(r) for r in tables["provenance"]]}
+        for row in tables["provenance"]:
+            transform = json.loads(row["transformation_json"])
+            transform["ree_version"] = provenance_version
+            row["transformation_json"] = canonical(transform)
     return digest({t: sorted(rows, key=canonical) for t, rows in sorted(tables.items())})
 
 
 def run(config, base=None, output=None, live=False, replay=None, decisions=None, parent_run=None,
-        link_decisions=None):
+        link_decisions=None, resume_checkpoint=None, cache=None, adapters=None, source_registry=None):
     base = (base or Path.cwd()).resolve()
     output_base = Path(output).resolve() if output else (base / config.output_dir).resolve()
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S") + "_" + uuid.uuid4().hex[:10]
@@ -354,21 +374,59 @@ def run(config, base=None, output=None, live=False, replay=None, decisions=None,
                 "python": platform.python_version(), "dependencies": deps, "enabled_adapters": [],
                 "input_files": [], "failed_records": [], "warnings": [], "record_counts": {},
                 "export_files": {}, "parent_run": parent_run, **code_metadata()}
-    manifest_path = root / "provenance" / "run_manifest.json"
+    manifest_path = root / "provenance/run_manifest.json"
     write_json(manifest_path, manifest)
+    clock = perf_counter()
+    log = logging.getLogger("ree")
+    log.info("Run %s started (%s)", run_id, config.mode)
     try:
         preflight_exports(config.exports)
-        if not replay and (config.mode in {"live", "hybrid"}) != bool(live):
+        if not replay and not resume_checkpoint and (config.mode in {"live", "hybrid"}) != bool(live):
             raise ValueError("live/hybrid mode requires --live; --live cannot be used in demo/local mode")
-        bundle = replay["processing_assets"] if replay else processing_assets(config, base)
+        saved = replay or resume_checkpoint
+        bundle = saved["processing_assets"] if saved else processing_assets(config, base)
         validate_assets(bundle)
         if set(config.topics) - set(bundle["taxonomy"]):
             raise ValueError("Some configured topics are absent from the taxonomy")
-        registry = replay["registry"] if replay else asset("source_registry.json")
-        records = []
+        registry = saved["registry"] if saved else asset("source_registry.json")
+        if source_registry:
+            if {s["id"] for s in registry} & {s["id"] for s in source_registry}:
+                raise ValueError("Extension sources must have unique IDs")
+            registry = registry + source_registry
+        records = [Record.model_validate(r) for r in resume_checkpoint["records"]] if resume_checkpoint else []
+        completed_inputs = list(resume_checkpoint.get("completed_inputs", [])) if resume_checkpoint else []
+        completed_sources = list(resume_checkpoint.get("completed_sources", [])) if resume_checkpoint else []
+        if resume_checkpoint:
+            for key in ("input_files", "failed_records", "enabled_adapters", "collections"):
+                manifest[key] = list(resume_checkpoint.get(key, []))
+            manifest["resume_mode"] = "reuse_completed_acquisition_then_reprocess"
+            if resume_checkpoint.get("omitted_public_records"):
+                manifest["warnings"].append({"reason": "public_checkpoint_omitted_unshareable_records",
+                    "count": resume_checkpoint["omitted_public_records"]})
+
+        def checkpoint():
+            rights = {s["id"]: s for s in registry}
+            kept = [r.model_dump(mode="json") for r in records if config.export_policy != "public"
+                    or (not r.sensitive and rights[r.source_id].get("redistribution_allowed") is True)]
+            data = {"ree_version": __version__, "config": config.model_dump(mode="json"),
+                    "config_base": str(base) if config.inputs else None,
+                    "config_hash": config.fingerprint(), "registry": registry,
+                    "processing_assets": bundle, "records": kept,
+                    "completed_inputs": completed_inputs, "completed_sources": completed_sources,
+                    "omitted_public_records": len(records) - len(kept),
+                    **{k: manifest.get(k, []) for k in
+                       ("input_files", "failed_records", "enabled_adapters", "collections")}}
+            write_json(root / "provenance/acquisition_checkpoint.json", data)
+            manifest["checkpoint_hash"] = digest(data)
+            manifest["export_files"] = file_hashes(root)
+            write_json(manifest_path, manifest)
+
+        checkpoint()
         if replay:
             records = [Record.model_validate(r) for r in replay["records"]]
             manifest["enabled_adapters"].append("saved-run-replay")
+            manifest["failed_records"] = list(replay.get("acquisition_failed_records", []))
+            manifest["collections"] = list(replay.get("collections", []))
         elif config.mode == "demo":
             fixture = asset("frozen.json")
             records = [Record.model_validate(r) for r in fixture]
@@ -376,7 +434,9 @@ def run(config, base=None, output=None, live=False, replay=None, decisions=None,
             manifest["input_files"].append({"name": "frozen.json", "hash": digest(fixture),
                 "kind": "curated_real_facts_and_short_excerpts; not an API response snapshot"})
         else:
-            for spec in config.inputs:
+            for index, spec in enumerate(config.inputs):
+                if index in completed_inputs:
+                    continue
                 remaining = config.collection.max_records - len(records)
                 if remaining <= 0:
                     manifest["failed_records"].append({"reason": "record_budget_exceeded"})
@@ -387,26 +447,51 @@ def run(config, base=None, output=None, live=False, replay=None, decisions=None,
                 manifest["input_files"].append(meta)
                 manifest["failed_records"].extend(errors)
                 manifest["enabled_adapters"].append("local-file-v1")
-            if live:
-                if config.collection.sources != ["usgs_catalog"]:
-                    raise ValueError("Only usgs_catalog is implemented for live collection")
-                adapter = USGSAdapter()
-                manifest["enabled_adapters"].append("usgs-catalog-v1")
-                try:
-                    loaded, errors = adapter.collect(config)
-                finally:
-                    manifest["collection_provenance"] = adapter.provenance()
-                remaining = config.collection.max_records - len(records)
-                if len(loaded) > remaining:
-                    errors.append({"reason": "combined_record_budget_exceeded"})
-                records.extend(loaded[:max(0, remaining)])
-                manifest["failed_records"].extend(errors)
+                completed_inputs.append(index)
+                checkpoint()
+            if config.mode in {"live", "hybrid"}:
+                factories = {"usgs_catalog": lambda: USGSAdapter(fetcher=cache) if cache else USGSAdapter(),
+                             **(adapters or {})}
+                for source_id in config.collection.sources:
+                    if source_id in completed_sources:
+                        continue
+                    if not live:
+                        raise ValueError("Unfinished live acquisition requires --live to resume")
+                    if source_id not in factories:
+                        raise ValueError("Only usgs_catalog is built in; extensions need explicit Python registration")
+                    source = next((s for s in registry if s["id"] == source_id), None)
+                    if source is None:
+                        raise ValueError("Adapter requires source registry metadata")
+                    remaining = config.collection.max_records - len(records)
+                    if remaining <= 0:
+                        manifest["failed_records"].append({"reason": "combined_record_budget_exceeded"})
+                        break
+                    adapter = factories[source_id]()
+                    manifest["enabled_adapters"].append("usgs-catalog-v1" if source_id == "usgs_catalog" else source_id)
+                    try:
+                        loaded, errors = collect_adapter(adapter, config, source)
+                    finally:
+                        manifest["collection_provenance"] = adapter.provenance()
+                        if cache and cache.access:
+                            manifest["collection_provenance"]["cache"] = cache.access
+                    manifest.setdefault("collections", []).append(manifest["collection_provenance"])
+                    if len(loaded) > remaining:
+                        errors.append({"reason": "combined_record_budget_exceeded"})
+                    records.extend(loaded[:remaining])
+                    manifest["failed_records"].extend(errors)
+                    completed_sources.append(source_id)
+                    checkpoint()
+        checkpoint()
+        manifest["timings_seconds"] = {"acquisition": round(perf_counter() - clock, 6)}
+        clock = perf_counter()
         manifest["record_counts"]["acquired"] = len(records)
         if len(records) > config.collection.max_records:
             manifest["failed_records"].append({"reason": "record_budget_exceeded"})
             records = records[:config.collection.max_records]
         tables, events, proposals, summary, errors, notices = process_records(
             records, registry, config, bundle, decisions, link_decisions)
+        manifest["timings_seconds"]["processing"] = round(perf_counter() - clock, 6)
+        clock = perf_counter()
         manifest["record_counts"].update(summary)
         manifest["source_identifiers"] = [s["source_id"] for s in tables["source"]]
         manifest["processing_counts"] = {t: len(rows) for t, rows in tables.items()}
@@ -418,25 +503,34 @@ def run(config, base=None, output=None, live=False, replay=None, decisions=None,
             raise ValueError("No usable records remain; inspect failed_records")
         if not summary["claims"]:
             manifest["warnings"].append({"reason": "no_claims_in_scope; absence is not evidence of no events"})
-        save_tables(root / "data" / "evidence.sqlite", tables)
-        # Public mode retains only records actually admitted to storage, preventing raw-data leakage.
+        save_tables(root / "data/evidence.sqlite", tables)
         kept_records = [json.loads(d["metadata_json"])["input_record"] for d in tables["document"]]
         snapshot = {"ree_version": __version__, "records": kept_records,
                     "registry": [s for s in registry if s["id"] in {r["source_id"] for r in kept_records}],
                     "processing_assets": bundle, "config": config.model_dump(mode="json"),
-                    "decisions": decisions or {}, "link_decisions": link_decisions or []}
-        write_json(root / "provenance" / "replay.json", snapshot)
-        write_json(root / "provenance" / "event_link_reviews.json", link_decisions or [])
+                    "decisions": decisions or {}, "link_decisions": link_decisions or [],
+                    "acquisition_failed_records": manifest["failed_records"],
+                    "collections": manifest.get("collections", [])}
+        write_json(root / "provenance/replay.json", snapshot)
+        write_json(root / "provenance/event_link_reviews.json", link_decisions or [])
         export_all(root, tables, events, proposals, config.exports, summary)
-        write_json(root / "logs" / "processing.json", {"failed_records": manifest["failed_records"],
-                                                       "warnings": manifest["warnings"]})
+        write_json(root / "logs/processing.json", {"failed_records": manifest["failed_records"],
+                                                   "warnings": manifest["warnings"]})
         manifest.update(status="partial" if manifest["failed_records"] else "succeeded",
                         completed_at=timestamp(), dataset_hash=dataset_digest(tables),
+                        reference_compatible_dataset_hash=dataset_digest(tables, asset("expected.json")["ree_version"]),
                         processing_assets_hash=digest(bundle), export_files=file_hashes(root))
+        manifest["timings_seconds"]["storage_and_exports"] = round(perf_counter() - clock, 6)
         write_json(manifest_path, manifest)
+        log.info("Run %s %s: %s claims", run_id, manifest["status"], summary["claims"])
+        if manifest["failed_records"] or manifest["warnings"]:
+            log.warning("Run has %s failed records and %s notices; inspect manifest",
+                        len(manifest["failed_records"]), len(manifest["warnings"]))
+        log.debug("Run timings: %s", manifest["timings_seconds"])
         return root, manifest
     except Exception as error:
         manifest.update(status="failed", completed_at=timestamp(), error={"type": type(error).__name__,
                         "message": str(error)}, export_files=file_hashes(root))
         write_json(manifest_path, manifest)
+        log.error("Run %s failed (%s); checkpoint retained", run_id, type(error).__name__)
         raise RunFailure(str(error), root) from error
